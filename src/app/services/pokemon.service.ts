@@ -23,6 +23,4 @@ export class PokemonService {
     public getAllPokemon(): Observable<NamedApiResourceList> {
         return this.http.get<NamedApiResourceList>('https://pokeapi.co/api/v2/pokemon?offset=0&limit=10000');
     }
-
-
 }

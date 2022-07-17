@@ -6,6 +6,7 @@ import { Pokemon } from "../domain/pokemon";
 import { allTypeNames, Type, TypeName } from "../domain/type";
 import { DamageMultipliers } from "../domain/damageMultipliers";
 import { BuiltinTypeName } from "@angular/compiler";
+import { GenerationName, isGenerationGreaterThanOrEqualTo } from "../domain/generation";
 
 
 @Injectable({

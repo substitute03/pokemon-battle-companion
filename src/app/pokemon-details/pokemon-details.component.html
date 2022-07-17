@@ -11,6 +11,46 @@
                         placeholder="abc" [ngbTypeahead]="searchPokemonNames" />
                     <label for="pokemonName">Pokémon name</label>
                 </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen1Checkbox"
+                        value="generation-i" tabindex="-1">
+                    <label class="form-check-label" for="gen1Checkbox">I</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen2Checkbox"
+                        value="generation-ii" tabindex="-1">
+                    <label class="form-check-label" for="gen2Checkbox">II</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen3Checkbox"
+                        value="generation-iii" tabindex="-1">
+                    <label class="form-check-label" for="gen3Checkbox">III</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen4Checkbox"
+                        value="generation-iv" tabindex="-1">
+                    <label class="form-check-label" for="gen4Checkbox">IV</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen5Checkbox"
+                        value="generation-v" tabindex="-1">
+                    <label class="form-check-label" for="gen5Checkbox">V</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen6Checkbox"
+                        value="generation-vi" tabindex="-1">
+                    <label class="form-check-label" for="gen6Checkbox">VI</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen7Checkbox"
+                        value="generation-vii" tabindex="-1">
+                    <label class="form-check-label" for="gen7Checkbox">VII</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio" id="gen8Checkbox"
+                        value="generation-viii" tabindex="-1">
+                    <label class="form-check-label" for="gen8Checkbox">VIII</label>
+                </div>
             </form>
             <button type="submit" (click)="getTypeMatchups()" class="btn btn-danger">
                 <div class="row gx-0">
@@ -29,14 +69,13 @@
                         <div class="row">
                             <div class="col-6 offset-3">
                                 <div class="row">
-                                    <div *ngFor="let type of pokemon.types" [ngClass]="{
-                                        'col-12': pokemon.types.length === 1,
-                                        'col-6 ps-0 pe-0': pokemon.types.length === 2}">
-                                        <span class="type {{type.type.name}}"></span>
+                                    <div *ngFor="let type of pokemonTypes" [ngClass]="{
+                                        'col-12': pokemonTypes.length === 1,
+                                        'col-6 ps-0 pe-0': pokemonTypes.length === 2}">
+                                        <span class="type {{type.name}}"></span>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </span>
@@ -45,10 +84,10 @@
     </div>
 </div>
 
-<div class="row col-6 offset-3 text-center mt-5">
-    <span class="display-6">Defensive Damage Multipliers</span>
+<div *ngIf="pokemon != null" class="row col-6 offset-3 text-center mt-5">
+    <span class="display-6">Defensive Damage Multipliers {{displayingMultipliersForGeneration}}</span>
 </div>
-<div class="row mt-5 text-center align-items-center pb-5">
+<div *ngIf="pokemon != null" class="row mt-5 text-center align-items-center pb-5">
     <div class="col-3"></div>
     <div class="col-6 text-center">
         <div class="row">

@@ -1,5 +1,11 @@
+import { GenerationName } from "./generation"
+
 export interface Type {
     name: TypeName,
+    generation: {
+        name: GenerationName,
+        url: string
+    },
     damage_relations: {
         double_damage_from: {
             name: TypeName,
@@ -38,3 +44,4 @@ export const allTypeNames: TypeName[] = [
     'ground', 'rock', 'bug', 'ghost', 'steel',
     'fire', 'water', 'grass', 'electric',
     'psychic', 'ice', 'dragon', 'dark', 'fairy'];
+
