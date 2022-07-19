@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { Pokemon } from '../domain/pokemon';
+import { Pokemon, PokemonType } from '../domain/pokemon';
 import { Type } from '../domain/type';
 import { PokemonService } from '../services/pokemon.service';
 import { TypeService } from '../services/type.service';
@@ -20,6 +20,9 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     getPokemonSubscription!: Subscription;
     getPokemonTypeSubscription!: Subscription;
 
+    public isLoading: boolean = false;
+    public message: string = "";
+
     public allPokemonNames: string[] = [];
     public pokemon: Pokemon | null = null;
     public pokemonTypes: Type[] = [];
@@ -31,7 +34,7 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     public model: any;
 
     pokemonForm = new FormGroup({
-        pokemonName: new FormControl(''),
+        pokemonName: new FormControl('', [Validators.required]),
         generation: new FormControl('generation-viii'),
     });
 
@@ -39,7 +42,6 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.getAllPokemonNames();
-
     }
 
     ngOnDestroy(): void {
@@ -48,21 +50,18 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         this.getAllPokemonSubscription.unsubscribe;
     }
 
-    public getAllPokemonNames() {
-        this.getAllPokemonSubscription = this._pokemonService.getAllPokemon()
-            .subscribe({
-                next: resourceList => {
-                    resourceList.results.forEach(result => {
-                        this.allPokemonNames.push(result.name);
-                    });
-                },
-                error: (error) => {
-                    console.log(error);
-                }
-            });
+    public async getAllPokemonNames() {
+        this.allPokemonNames = await this._pokemonService.getAllPokemonNamesAsync();
     }
 
     public getTypeMatchups() {
+        if (this.pokemonForm.invalid) {
+            this.pokemonForm.markAllAsTouched(); // Mark as touched to display validation if it is not already shown.
+            return;
+        }
+
+        this.message = "";
+        this.isLoading = true;
         this.pokemon = null;
         this.pokemonTypes = [];
         this.defensiveMultipliers.four = [];
@@ -74,15 +73,19 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
         let pokemonName: string = this.pokemonForm.get('pokemonName')?.value;
 
+        // TODO: Make a service method to get pokemon by name and generation.
         this.getPokemonSubscription = this._pokemonService.getPokemonByName(pokemonName)
             .subscribe({
                 next: receivedPokemon => {
                     this.pokemon = receivedPokemon;
                     this.getPokemonDefensiveMultipiers();
+                    this.isLoading = false;
                 },
                 error: (error) => {
                     if (error.status === 404) {
-                        console.log("Pokemon not found")
+                        console.log("Pokémon not found.");
+                        this.message = "Pokémon not found.";
+                        this.isLoading = false;
                     };
                 }
             });
@@ -99,7 +102,8 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
             throw new Error("Selected generation is not a real generation name.")
         }
 
-        const pastTypesToUse = this.pokemon.past_types
+        let pastTypesToUse: PokemonType[] = [];
+        pastTypesToUse = this.pokemon.past_types
             .filter(pastType => isGenerationGreaterThanOrEqualTo(pastType.generation.name, selectedGeneration))
             .sort((a, b) => generationNameToNumber[a.generation.name] - generationNameToNumber[b.generation.name])[0]?.types;
 
@@ -116,12 +120,11 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
             this.getPokemonSubscription = this._typeService.getTypeByUrl(typeToUse.type.url)
                 .subscribe({
                     next: receivedType => {
-                        0
                         this.pokemonTypes.push(receivedType);
                     },
                     complete: () => {
-                        if (pastTypesToUse) {
-                            if (pastTypesToUse.length === this.pokemonTypes.length) {
+                        if (typesToUse) {
+                            if (pastTypesToUse && pastTypesToUse.length === this.pokemonTypes.length) {
                                 switch (this.pokemonTypes.length) {
                                     case 1: {
                                         this.defensiveMultipliers =

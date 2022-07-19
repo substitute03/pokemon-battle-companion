@@ -52,18 +52,11 @@
                     <label class="form-check-label" for="gen8Checkbox">VIII</label>
                 </div>
             </form>
-            <button type="submit" (click)="getTypeMatchups()" class="btn btn-danger">
-                <div class="row gx-0">
-                    <div class="col-12 text-center">
-                        Go
-                        <i class="bi bi-chevron-compact-right float-end"></i>
-                    </div>
-                </div>
-            </button>
             <div>
-                <span *ngIf="pokemon != null">
+                <div *ngIf="!isLoading; else loadingSpinner">
                     <div class="row col-8 offset-2">
-                        <img src="{{pokemon.sprites.other['official-artwork'].front_default}}" />
+                        <img *ngIf="pokemon != null"
+                            src="{{pokemon.sprites.other['official-artwork'].front_default}}" />
                     </div>
                     <div>
                         <div class="row">
@@ -78,8 +71,22 @@
                             </div>
                         </div>
                     </div>
-                </span>
+                    <p class="text-danger" *ngIf="message && !isLoading">{{message}}</p>
+                </div>
+                <ng-template #loadingSpinner>
+                    <div class="spinner-grow text-danger" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </ng-template>
             </div>
+            <button type="submit" (click)="getTypeMatchups()" class="btn btn-danger">
+                <div class="row gx-0">
+                    <div class="col-12 text-center">
+                        Go
+                        <i class="bi bi-chevron-compact-right float-end"></i>
+                    </div>
+                </div>
+            </button>
         </div>
     </div>
 </div>
