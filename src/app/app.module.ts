@@ -9,24 +9,24 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PokemonDetailsComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule.forRoot([
-        { path: '', component: PokemonDetailsComponent, pathMatch: 'full', data: { animation: 'Page1'}},
-        { path: '**', component: PokemonDetailsComponent } // wildcard path if the path doesn't match anything
-      ]),
-    NgbModule
+    declarations: [
+        AppComponent,
+        PokemonDetailsComponent
+    ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        AppRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forRoot([
+            { path: '', component: PokemonDetailsComponent, pathMatch: 'full', data: { animation: 'Page1' } },
+            { path: '**', component: PokemonDetailsComponent } // wildcard path if the path doesn't match anything
+        ]),
+        NgbModule
 
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

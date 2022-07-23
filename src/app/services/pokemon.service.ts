@@ -2,16 +2,24 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
-import { Pokemon } from "../domain/pokemon";
 import { NamedApiResourceList } from "../domain/namedApiResourceList";
 import { DamageMultipliers } from "../domain/damageMultipliers"
 import { interval, firstValueFrom } from 'rxjs';
+import { MainClient, PokemonClient } from "pokenode-ts";
+import * as pokeNodeTs from "pokenode-ts";
+import { Pokemon } from "../domain/pokemon";
 
 @Injectable({
     providedIn: 'root'
 })
 export class PokemonService {
-    constructor(private http: HttpClient) { }
+    // private readonly pokeApi: MainClient;
+    private readonly ok: PokemonClient;
+
+    constructor(private http: HttpClient) {
+        // this.pokeApi = new MainClient();
+        this.ok = new PokemonClient;
+    }
 
     public getPokemonById(id: number): Observable<Pokemon> {
         return this.http.get<Pokemon>(`https://pokeapi.co/api/v2/pokemon/${id}`);
@@ -34,5 +42,10 @@ export class PokemonService {
         });
 
         return allNames;
+    }
+
+    public async getPokemonByNamePokenode(name: string, generation: number) {
+        let a = await this.ok.listTypes();
+        let b = a;
     }
 }

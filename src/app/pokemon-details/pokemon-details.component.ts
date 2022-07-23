@@ -9,6 +9,8 @@ import { Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { DamageMultipliers } from '../domain/damageMultipliers';
 import { generationNameToNumber, isGenerationName, isGenerationGreaterThanOrEqualTo } from '../domain/generation';
+import { GenerationService } from '../services/generation.service'
+import { Types } from "pokenode-ts";
 
 @Component({
     selector: 'pbc-pokemon-details',
@@ -24,6 +26,7 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     public message: string = "";
 
     public allPokemonNames: string[] = [];
+    public allGenerationNames: string[] = [];
     public pokemon: Pokemon | null = null;
     public pokemonTypes: Type[] = [];
     public displayingMultipliersForGeneration: string = "";
@@ -38,10 +41,14 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         generation: new FormControl('generation-viii'),
     });
 
-    constructor(private _pokemonService: PokemonService, private _typeService: TypeService) { }
+    constructor(private _pokemonService: PokemonService,
+        private _typeService: TypeService,
+        private _generationService: GenerationService) { }
 
     ngOnInit(): void {
         this.getAllPokemonNames();
+        this.getAllGenerationNames();
+        this._pokemonService.getPokemonByNamePokenode("", 1);
     }
 
     ngOnDestroy(): void {
@@ -52,6 +59,10 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
     public async getAllPokemonNames() {
         this.allPokemonNames = await this._pokemonService.getAllPokemonNamesAsync();
+    }
+
+    public async getAllGenerationNames() {
+        this.allGenerationNames = await this._generationService.getAllGenerationNamesAsync();
     }
 
     public getTypeMatchups() {

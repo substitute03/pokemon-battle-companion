@@ -1,3 +1,13 @@
+import { Type } from "./type"
+
+export interface Generation {
+    id: number,
+    numeral: string,
+    types: Type[],
+    name: string,
+    url: string
+}
+
 export type GenerationName =
     "generation-i" |
     "generation-ii" |

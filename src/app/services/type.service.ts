@@ -27,6 +27,10 @@ export class TypeService {
         return this.http.get<Type>(url);
     }
 
+    public getTypesByGeneration(generationName: string) {
+
+    }
+
     public getDefensiveDamageMultipliersForType(type: Type): DamageMultipliers {
         let defensiveMultipliers: DamageMultipliers = {
             four: [], two: [], one: [], half: [], quarter: [], zero: []
