@@ -1,4 +1,4 @@
-import { TypeName } from "./type"
+import { TypeName } from "./typeDomain"
 
 export interface DamageMultipliers {
     four: TypeName[],

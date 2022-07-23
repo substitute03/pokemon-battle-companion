@@ -1,16 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { Pokemon, PokemonType } from '../domain/pokemon';
-import { Type } from '../domain/type';
+import { GenerationName } from '../domain/generationDomain';
 import { PokemonService } from '../services/pokemon.service';
 import { TypeService } from '../services/type.service';
 import { Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { DamageMultipliers } from '../domain/damageMultipliers';
-import { generationNameToNumber, isGenerationName, isGenerationGreaterThanOrEqualTo } from '../domain/generation';
+import { generationNameToNumber, isGenerationName, isGenerationGreaterThanOrEqualTo } from '../domain/generationDomain';
 import { GenerationService } from '../services/generation.service'
-import { Types } from "pokenode-ts";
+import { Type, Pokemon, PokemonType } from "pokenode-ts";
 
 @Component({
     selector: 'pbc-pokemon-details',
@@ -48,7 +47,6 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.getAllPokemonNames();
         this.getAllGenerationNames();
-        this._pokemonService.getPokemonByNamePokenode("", 1);
     }
 
     ngOnDestroy(): void {
@@ -115,8 +113,8 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
         let pastTypesToUse: PokemonType[] = [];
         pastTypesToUse = this.pokemon.past_types
-            .filter(pastType => isGenerationGreaterThanOrEqualTo(pastType.generation.name, selectedGeneration))
-            .sort((a, b) => generationNameToNumber[a.generation.name] - generationNameToNumber[b.generation.name])[0]?.types;
+            .filter(pastType => isGenerationGreaterThanOrEqualTo(pastType.generation.name as GenerationName, selectedGeneration))
+            .sort((a, b) => generationNameToNumber[a.generation.name as GenerationName] - generationNameToNumber[b.generation.name as GenerationName])[0]?.types;
 
         const typesToUse = pastTypesToUse || this.pokemon.types;
 

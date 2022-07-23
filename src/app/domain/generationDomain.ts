@@ -1,6 +1,6 @@
-import { Type } from "./type"
+import { Type } from "pokenode-ts"
 
-export interface Generation {
+export interface GenerationDomain {
     id: number,
     numeral: string,
     types: Type[],

@@ -2,11 +2,11 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, retry, distinct } from 'rxjs/operators';
-import { Pokemon } from "../domain/pokemon";
-import { allTypeNames, Type, TypeName } from "../domain/type";
+import { Pokemon, Type } from "pokenode-ts";
+import { allTypeNames, TypeName } from "../domain/typeDomain";
 import { DamageMultipliers } from "../domain/damageMultipliers";
 import { BuiltinTypeName } from "@angular/compiler";
-import { GenerationName, isGenerationGreaterThanOrEqualTo } from "../domain/generation";
+import { GenerationName, isGenerationGreaterThanOrEqualTo } from "../domain/generationDomain";
 
 
 @Injectable({
@@ -27,10 +27,6 @@ export class TypeService {
         return this.http.get<Type>(url);
     }
 
-    public getTypesByGeneration(generationName: string) {
-
-    }
-
     public getDefensiveDamageMultipliersForType(type: Type): DamageMultipliers {
         let defensiveMultipliers: DamageMultipliers = {
             four: [], two: [], one: [], half: [], quarter: [], zero: []
@@ -40,17 +36,17 @@ export class TypeService {
 
         type.damage_relations.double_damage_from.forEach(type => {
             defensiveMultipliers.two.push(type.name as TypeName);
-            addedTypes.push(type.name);
+            addedTypes.push(type.name as TypeName);
         });
 
         type.damage_relations.half_damage_from.forEach(type => {
-            defensiveMultipliers.half.push(type.name);
-            addedTypes.push(type.name);
+            defensiveMultipliers.half.push(type.name as TypeName);
+            addedTypes.push(type.name as TypeName);
         });
 
         type.damage_relations.no_damage_from.forEach(type => {
-            defensiveMultipliers.zero.push(type.name);
-            addedTypes.push(type.name);
+            defensiveMultipliers.zero.push(type.name as TypeName);
+            addedTypes.push(type.name as TypeName);
         });
 
         allTypeNames.forEach(typeName => {
@@ -69,11 +65,11 @@ export class TypeService {
 
         let zeroMultiplierTypes: TypeName[] = [];
         type1.damage_relations.no_damage_from.forEach(type => {
-            zeroMultiplierTypes.push(type.name);
+            zeroMultiplierTypes.push(type.name as TypeName);
         });
         type2.damage_relations.no_damage_from.forEach(type => {
 
-            zeroMultiplierTypes.push(type.name);
+            zeroMultiplierTypes.push(type.name as TypeName);
         });
 
         of(zeroMultiplierTypes)
@@ -82,25 +78,25 @@ export class TypeService {
 
         let twoMultplierTypes: TypeName[] = [];
         type1.damage_relations.double_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name)) {
-                twoMultplierTypes.push(type.name);
+            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+                twoMultplierTypes.push(type.name as TypeName);
             };
         });
         type2.damage_relations.double_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name)) {
-                twoMultplierTypes.push(type.name);
+            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+                twoMultplierTypes.push(type.name as TypeName);
             };
         });
 
         let halfMultiplierTypes: TypeName[] = [];
         type1.damage_relations.half_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name)) {
-                halfMultiplierTypes.push(type.name);
+            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+                halfMultiplierTypes.push(type.name as TypeName);
             };
         });
         type2.damage_relations.half_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name)) {
-                halfMultiplierTypes.push(type.name);
+            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+                halfMultiplierTypes.push(type.name as TypeName);
             };
         });
 

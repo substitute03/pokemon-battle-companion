@@ -2,8 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
-import { Pokemon } from "../domain/pokemon";
-import { NamedApiResourceList } from "../domain/namedApiResourceList";
+import { NamedAPIResourceList, GameClient } from "pokenode-ts";
 import { DamageMultipliers } from "../domain/damageMultipliers"
 import { interval, firstValueFrom } from 'rxjs';
 
@@ -13,8 +12,8 @@ import { interval, firstValueFrom } from 'rxjs';
 export class GenerationService {
     constructor(private http: HttpClient) { }
 
-    public getAllGenerations(): Observable<NamedApiResourceList> {
-        return this.http.get<NamedApiResourceList>('https://pokeapi.co/api/v2/generation');
+    public getAllGenerations(): Observable<NamedAPIResourceList> {
+        return this.http.get<NamedAPIResourceList>('https://pokeapi.co/api/v2/generation');
     }
 
     public async getAllGenerationNamesAsync(): Promise<string[]> {
@@ -27,4 +26,6 @@ export class GenerationService {
 
         return allNames;
     }
+
+
 }
