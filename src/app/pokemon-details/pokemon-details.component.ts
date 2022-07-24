@@ -10,6 +10,7 @@ import { DamageMultipliers } from '../domain/damageMultipliers';
 import { generationNameToNumber, isGenerationName, isGenerationGreaterThanOrEqualTo } from '../domain/generationDomain';
 import { GenerationService } from '../services/generation.service'
 import { Type, Pokemon, PokemonType } from "pokenode-ts";
+import { PokemonDomain } from '../domain/pokemonDomain';
 
 @Component({
     selector: 'pbc-pokemon-details',
@@ -63,7 +64,7 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         this.allGenerationNames = await this._generationService.getAllGenerationNamesAsync();
     }
 
-    public getTypeMatchups() {
+    public async getTypeMatchups() {
         if (this.pokemonForm.invalid) {
             this.pokemonForm.markAllAsTouched(); // Mark as touched to display validation if it is not already shown.
             return;
@@ -80,7 +81,10 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         this.defensiveMultipliers.two = [];
         this.defensiveMultipliers.zero = [];
 
-        let pokemonName: string = this.pokemonForm.get('pokemonName')?.value;
+        const pokemonName: string = this.pokemonForm.get('pokemonName')?.value;
+        const selectedGenId: number = parseInt(this.pokemonForm.get('generation')?.value);
+
+        const pokemonDomain: PokemonDomain | null = await this._pokemonService.getPokemonByGeneration(pokemonName, selectedGenId);
 
         // TODO: Make a service method to get pokemon by name and generation.
         this.getPokemonSubscription = this._pokemonService.getPokemonByName(pokemonName)

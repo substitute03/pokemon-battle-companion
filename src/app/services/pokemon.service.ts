@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError, interval, firstValueFrom } from 'rxjs';
-import { Pokemon, PokemonClient, NamedAPIResourceList, MainClient, PokemonForm, Types, Generation, PokemonPastType, PokemonType } from "pokenode-ts";
+import { Pokemon, PokemonClient, NamedAPIResourceList, MainClient, PokemonForm, Types, Generation, PokemonPastType, PokemonType, Generations } from "pokenode-ts";
 import { PokemonDomain } from "../domain/pokemonDomain";
 import { TypeName } from "../domain/typeDomain";
 
@@ -60,7 +60,7 @@ export class PokemonService {
         }
 
         const pokemonTypeNames: TypeName[] =
-            await this.getPokemonTypeNamesByGeneration(pokemonApi, selectedGenerationId, introducedInGenerationId);
+            await this.getPokemonTypeNamesByGeneration(pokemonApi, selectedGenerationId);
 
         // map pokemon to api
         // const domainPokemon = mapToDomainPokemon(pokemonApi);
@@ -72,9 +72,7 @@ export class PokemonService {
     private async getPokemonTypeNamesByGeneration(
         pokemonApi: Pokemon,
         selectedGenerationId: number,
-        pokemonIntroducedInGenerationId: number
     ): Promise<TypeName[]> {
-        const typeNames: TypeName[] = [];
         const pastTypes: PokemonPastType[] = pokemonApi.past_types;
         const currentTypes: PokemonType[] = pokemonApi.types;
 
@@ -84,25 +82,51 @@ export class PokemonService {
 
         // If the pokemon has past types, get the generation ids of when their typing was different to their current typing.
         let typesDifferentInGenIds: number[] = [];
-        pastTypes.forEach(async pastType => {
+        let typesDifferentInGens: Generation[] = [];
+
+        for (const pastType of pastTypes) {
             const generation: Generation =
                 await this.mainClient.game.getGenerationByName(pastType.generation.name);
 
+            typesDifferentInGens.push(generation);
             typesDifferentInGenIds.push(generation.id);
-        });
+        }
 
+        // Sort by descending so most recent gen id is on top.
+        typesDifferentInGenIds.sort((n1, n2) => n1 - n2);
 
         // If the pokemon has no past types, or if the selected generation is
         // greater than the most recent type change, return the mon's current types.
-        if ((pastTypes.length === 0) || (selectedGenerationId > Math.max(...typesDifferentInGenIds))) {
+        if ((pastTypes.length === 0) ||
+            (selectedGenerationId > Math.max(...typesDifferentInGens.map(x => x.id)))) {
             return currentTypes.map(ct => ct.type.name as TypeName);
         }
 
 
         // If the types have only changed once and selected generation is less than or equal to the most recent type change,
         // return the types from the earlier generation.
-        if (pastTypes.length === 1 && selectedGenerationId <= Math.max(...typesDifferentInGenIds)) {
-            return pastTypes[0].types.map(t => t.type.name as TypeName);
+        // TODO: This scenario may be covered by the i
+        if (pastTypes.length === 1 &&
+            selectedGenerationId <= Math.max(...typesDifferentInGens.map(x => x.id))) {
+            let a = pastTypes[0].types.map(t => t.type.name as TypeName);
+            return a;
+        }
+
+        // If the pokemon has multiple past type changes, return the types from the generation prior to the selected generation.
+        if (pastTypes.length > 1) {
+            let genIdToGetTypesFor: number;
+
+            typesDifferentInGenIds.forEach((genId) => {
+                if (genId < selectedGenerationId) {
+                    genIdToGetTypesFor = genId;
+                }
+            });
+
+            const genToGetTypesFor: Generation | undefined =
+                typesDifferentInGens.find(g => g.id === genIdToGetTypesFor);
+
+            if (genToGetTypesFor)
+                return genToGetTypesFor.types.map(t => t.name as TypeName);
         }
 
         throw new Error("Could not determine the pokemon's types.");
