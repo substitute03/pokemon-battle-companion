@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError, interval, firstValueFrom } from 'rxjs';
-import { Pokemon, PokemonClient, NamedAPIResourceList, MainClient, PokemonForm, Types, Generation, PokemonPastType, PokemonType, Generations } from "pokenode-ts";
+import { Pokemon, PokemonClient, NamedAPIResourceList, MainClient, Type, Generation, PokemonPastType, PokemonType, PokemonSprites } from "pokenode-ts";
 import { PokemonDomain } from "../domain/pokemonDomain";
 import { TypeName } from "../domain/typeDomain";
+import { DamageMultipliers } from "../domain/damageMultipliers";
+import { TypeService } from "./type.service";
 
 @Injectable({
     providedIn: 'root'
@@ -13,7 +15,7 @@ export class PokemonService {
     private readonly pokemonClient: PokemonClient;
     private readonly mainClient: MainClient;
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private _typeService: TypeService) {
         this.pokemonClient = new PokemonClient;
         this.mainClient = new MainClient;
     }
@@ -45,6 +47,8 @@ export class PokemonService {
         const pokemonApi: Pokemon =
             await this.pokemonClient.getPokemonByName(pokemonName);
 
+        // TODO: add something to handle pokmon not found and return null?
+
         const introductedInVersionName: string =
             (await this.mainClient.pokemon.getPokemonFormByName(pokemonName)).version_group.name;
 
@@ -59,20 +63,30 @@ export class PokemonService {
             return null;
         }
 
-        const pokemonTypeNames: TypeName[] =
-            await this.getPokemonTypeNamesByGeneration(pokemonApi, selectedGenerationId);
+        const types: Type[] =
+            await this.getPokemonTypesByGeneration(pokemonApi, selectedGenerationId);
+
+        const defensiveDamageMultipliers: DamageMultipliers =
+            this._typeService.getDefensiveDamageMultipliers(types);
+
+        const sprite: string | null = pokemonApi.sprites.other['official-artwork'].front_default;
 
         // map pokemon to api
-        // const domainPokemon = mapToDomainPokemon(pokemonApi);
+        const pokemonDomain = this.mapToPokemonDomain(
+            pokemonApi.id,
+            pokemonApi.name,
+            selectedGenerationId,
+            types.map(t => t.name as TypeName),
+            defensiveDamageMultipliers,
+            sprite);
 
-        let a: PokemonDomain | null = null;
-        return a;
+        return pokemonDomain;
     }
 
-    private async getPokemonTypeNamesByGeneration(
+    private async getPokemonTypesByGeneration(
         pokemonApi: Pokemon,
         selectedGenerationId: number,
-    ): Promise<TypeName[]> {
+    ): Promise<Type[]> {
         const pastTypes: PokemonPastType[] = pokemonApi.past_types;
         const currentTypes: PokemonType[] = pokemonApi.types;
 
@@ -80,9 +94,10 @@ export class PokemonService {
         // Note that a pokemon's past types work in "reverse order". E.g. Wigglytuff was changed to normal/fairy
         // in gen 6 so its past types array would contain "gen 5 - normal"
 
-        // If the pokemon has past types, get the generation ids of when their typing was different to their current typing.
+        // If the pokemon has past types, get the generation ids of when their typing was different to their current type names.
         let typesDifferentInGenIds: number[] = [];
         let typesDifferentInGens: Generation[] = [];
+        let typeNames: TypeName[] = [];
 
         for (const pastType of pastTypes) {
             const generation: Generation =
@@ -96,23 +111,25 @@ export class PokemonService {
         typesDifferentInGenIds.sort((n1, n2) => n1 - n2);
 
         // If the pokemon has no past types, or if the selected generation is
-        // greater than the most recent type change, return the mon's current types.
+        // greater than the most recent type change, get the mon's current type names.
         if ((pastTypes.length === 0) ||
             (selectedGenerationId > Math.max(...typesDifferentInGens.map(x => x.id)))) {
-            return currentTypes.map(ct => ct.type.name as TypeName);
+            for (let typeName of currentTypes.map(ct => ct.type.name as TypeName)) {
+                typeNames.push(typeName);
+            };
         }
 
-
         // If the types have only changed once and selected generation is less than or equal to the most recent type change,
-        // return the types from the earlier generation.
+        // get the type names from the earlier generation.
         // TODO: This scenario may be covered by the i
         if (pastTypes.length === 1 &&
             selectedGenerationId <= Math.max(...typesDifferentInGens.map(x => x.id))) {
-            let a = pastTypes[0].types.map(t => t.type.name as TypeName);
-            return a;
+            for (let typeName of pastTypes[0].types.map(t => t.type.name as TypeName)) {
+                typeNames.push(typeName);
+            }
         }
 
-        // If the pokemon has multiple past type changes, return the types from the generation prior to the selected generation.
+        // If the pokemon has multiple past type changes, get the types names from the generation prior to the selected generation.
         if (pastTypes.length > 1) {
             let genIdToGetTypesFor: number;
 
@@ -126,9 +143,40 @@ export class PokemonService {
                 typesDifferentInGens.find(g => g.id === genIdToGetTypesFor);
 
             if (genToGetTypesFor)
-                return genToGetTypesFor.types.map(t => t.name as TypeName);
+                for (let typeName of genToGetTypesFor.types.map(t => t.name as TypeName)) {
+                    typeNames.push(typeName);
+                }
         }
 
-        throw new Error("Could not determine the pokemon's types.");
+        if (typeNames.length === 0)
+            throw new Error("Could not determine the pokemon's types.");
+
+        const types: Type[] = [];
+        for (let typeName of typeNames) {
+            const type: Type = await this.pokemonClient.getTypeByName(typeName);
+            types.push(type);
+        }
+
+        return types;
+    }
+
+    private mapToPokemonDomain(
+        id: number,
+        name: string,
+        generationId: number,
+        typeNames: TypeName[],
+        defensiveDamageMultipliers: DamageMultipliers,
+        sprite: string | null)
+        : PokemonDomain {
+        const pokemonDomain: PokemonDomain = {
+            id: id,
+            name: name,
+            generationId: generationId,
+            typeNames: typeNames,
+            defensiveDamageMultipliers: defensiveDamageMultipliers,
+            sprite: sprite
+        };
+
+        return pokemonDomain;
     }
 }

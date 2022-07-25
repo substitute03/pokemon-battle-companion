@@ -18,7 +18,7 @@
                 </div>
                 <div class="form-check form-check-inline">
                     <input formControlName="generation" class="form-check-input" type="radio" id="gen2Checkbox"
-                        value="1" tabindex="-1">
+                        value="2" tabindex="-1">
                     <label class="form-check-label" for="gen2Checkbox">II</label>
                 </div>
                 <div class="form-check form-check-inline">
@@ -55,17 +55,16 @@
             <div>
                 <div *ngIf="!isLoading; else loadingSpinner">
                     <div class="row col-8 offset-2">
-                        <img *ngIf="pokemon != null"
-                            src="{{pokemon.sprites.other['official-artwork'].front_default}}" />
+                        <img *ngIf="pokemon != null" src="{{pokemon.sprite}}" />
                     </div>
                     <div>
-                        <div class="row">
+                        <div *ngIf="pokemon != null" class="row">
                             <div class="col-6 offset-3">
                                 <div class="row">
-                                    <div *ngFor="let type of pokemonTypes" [ngClass]="{
-                                        'col-12': pokemonTypes.length === 1,
-                                        'col-6 ps-0 pe-0': pokemonTypes.length === 2}">
-                                        <span class="type {{type.name}}"></span>
+                                    <div *ngFor="let typeName of pokemon.typeNames" [ngClass]="{
+                                        'col-12': pokemon.typeNames.length === 1,
+                                        'col-6 ps-0 pe-0': pokemon.typeNames.length === 2}">
+                                        <span class="type {{typeName}}"></span>
                                     </div>
                                 </div>
                             </div>
@@ -79,7 +78,7 @@
                     </div>
                 </ng-template>
             </div>
-            <button type="submit" (click)="getTypeMatchups()" class="btn btn-danger">
+            <button type="submit" (click)="getPokemonDetails()" class="btn btn-danger">
                 <div class="row gx-0">
                     <div class="col-12 text-center">
                         Go
@@ -101,43 +100,43 @@
             <div class="col-lg-2">
                 <h1 class="">4x</h1>
                 <div class="vstack gap-3">
-                    <span *ngFor="let type of defensiveMultipliers.four" class="type {{type}}"></span>
-                    <h3 *ngIf="defensiveMultipliers.four.length === 0 && pokemon !== null">None</h3>
+                    <span *ngFor="let type of pokemon.defensiveDamageMultipliers.four" class="type {{type}}"></span>
+                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.four.length === 0 && pokemon !== null">None</h3>
                 </div>
             </div>
             <div class="col-lg-2">
                 <h1 class="">2x</h1>
                 <div class="vstack gap-3">
-                    <span *ngFor="let type of defensiveMultipliers.two" class="type {{type}}"></span>
-                    <h3 *ngIf="defensiveMultipliers.two.length === 0 && pokemon !== null">None</h3>
+                    <span *ngFor="let type of pokemon.defensiveDamageMultipliers.two" class="type {{type}}"></span>
+                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.two.length === 0 && pokemon !== null">None</h3>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
                 <h1>1x</h1>
                 <div class="vstack gap-3">
-                    <span *ngFor="let type of defensiveMultipliers.one" class="type {{type}}"></span>
-                    <h3 *ngIf="defensiveMultipliers.one.length === 0 && pokemon !== null">None</h3>
+                    <span *ngFor="let type of pokemon.defensiveDamageMultipliers.one" class="type {{type}}"></span>
+                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.one.length === 0 && pokemon !== null">None</h3>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
                 <h1 class="">½x</h1>
                 <div class="vstack gap-3">
-                    <span *ngFor="let type of defensiveMultipliers.half" class="type {{type}}"></span>
-                    <h3 *ngIf="defensiveMultipliers.half.length === 0 && pokemon !== null">None</h3>
+                    <span *ngFor="let type of pokemon.defensiveDamageMultipliers.half" class="type {{type}}"></span>
+                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.half.length === 0 && pokemon !== null">None</h3>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
                 <h1 class="">¼x</h1>
                 <div class="vstack gap-3">
-                    <span *ngFor="let type of defensiveMultipliers.quarter" class="type {{type}}"></span>
-                    <h3 *ngIf="defensiveMultipliers.quarter.length === 0 && pokemon !== null">None</h3>
+                    <span *ngFor="let type of pokemon.defensiveDamageMultipliers.quarter" class="type {{type}}"></span>
+                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.quarter.length === 0 && pokemon !== null">None</h3>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
                 <h1>0x</h1>
                 <div class="vstack gap-3">
-                    <span *ngFor="let type of defensiveMultipliers.zero" class="type {{type}}"></span>
-                    <h3 *ngIf="defensiveMultipliers.zero.length === 0 && pokemon !== null">None</h3>
+                    <span *ngFor="let type of pokemon.defensiveDamageMultipliers.zero" class="type {{type}}"></span>
+                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.zero.length === 0 && pokemon !== null">None</h3>
                 </div>
             </div>
         </div>

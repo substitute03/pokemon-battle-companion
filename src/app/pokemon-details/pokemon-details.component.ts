@@ -18,16 +18,12 @@ import { PokemonDomain } from '../domain/pokemonDomain';
     styleUrls: ['./pokemon-details.component.css']
 })
 export class PokemonDetailsComponent implements OnInit, OnDestroy {
-    getAllPokemonSubscription!: Subscription;
-    getPokemonSubscription!: Subscription;
-    getPokemonTypeSubscription!: Subscription;
+
 
     public isLoading: boolean = false;
     public message: string = "";
-
     public allPokemonNames: string[] = [];
-    public allGenerationNames: string[] = [];
-    public pokemon: Pokemon | null = null;
+    public pokemon: PokemonDomain | null = null;
     public pokemonTypes: Type[] = [];
     public displayingMultipliersForGeneration: string = "";
     public defensiveMultipliers: DamageMultipliers = {
@@ -38,38 +34,43 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
     pokemonForm = new FormGroup({
         pokemonName: new FormControl('', [Validators.required]),
-        generation: new FormControl('generation-viii'),
+        generation: new FormControl('8'),
     });
 
-    constructor(private _pokemonService: PokemonService,
-        private _typeService: TypeService,
-        private _generationService: GenerationService) { }
+    constructor(private _pokemonService: PokemonService) { }
 
     ngOnInit(): void {
         this.getAllPokemonNames();
-        this.getAllGenerationNames();
     }
 
-    ngOnDestroy(): void {
-        this.getPokemonSubscription.unsubscribe;
-        this.getPokemonTypeSubscription.unsubscribe;
-        this.getAllPokemonSubscription.unsubscribe;
-    }
+    ngOnDestroy(): void { }
 
     public async getAllPokemonNames() {
         this.allPokemonNames = await this._pokemonService.getAllPokemonNamesAsync();
     }
 
-    public async getAllGenerationNames() {
-        this.allGenerationNames = await this._generationService.getAllGenerationNamesAsync();
-    }
-
-    public async getTypeMatchups() {
+    public async getPokemonDetails() {
         if (this.pokemonForm.invalid) {
             this.pokemonForm.markAllAsTouched(); // Mark as touched to display validation if it is not already shown.
             return;
         }
 
+        this.resetPage();
+
+        const pokemonName: string = this.pokemonForm.get('pokemonName')?.value;
+        const selectedGenId: number = parseInt(this.pokemonForm.get('generation')?.value);
+
+        this.pokemon = await this._pokemonService
+            .getPokemonByGeneration(pokemonName, selectedGenId);
+
+        if (this.pokemon === null) {
+            this.message = "Pokémon did not exist in generation " + selectedGenId;
+        }
+
+        this.isLoading = false;
+    }
+
+    private resetPage(): void {
         this.message = "";
         this.isLoading = true;
         this.pokemon = null;
@@ -80,94 +81,6 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         this.defensiveMultipliers.quarter = [];
         this.defensiveMultipliers.two = [];
         this.defensiveMultipliers.zero = [];
-
-        const pokemonName: string = this.pokemonForm.get('pokemonName')?.value;
-        const selectedGenId: number = parseInt(this.pokemonForm.get('generation')?.value);
-
-        const pokemonDomain: PokemonDomain | null = await this._pokemonService.getPokemonByGeneration(pokemonName, selectedGenId);
-
-        // TODO: Make a service method to get pokemon by name and generation.
-        this.getPokemonSubscription = this._pokemonService.getPokemonByName(pokemonName)
-            .subscribe({
-                next: receivedPokemon => {
-                    this.pokemon = receivedPokemon;
-                    this.getPokemonDefensiveMultipiers();
-                    this.isLoading = false;
-                },
-                error: (error) => {
-                    if (error.status === 404) {
-                        console.log("Pokémon not found.");
-                        this.message = "Pokémon not found.";
-                        this.isLoading = false;
-                    };
-                }
-            });
-    }
-
-    private getPokemonDefensiveMultipiers() {
-        if (!this.pokemon) {
-            return;
-        };
-
-        let selectedGeneration = this.pokemonForm.get('generation')?.value;
-
-        if (!isGenerationName(selectedGeneration)) {
-            throw new Error("Selected generation is not a real generation name.")
-        }
-
-        let pastTypesToUse: PokemonType[] = [];
-        pastTypesToUse = this.pokemon.past_types
-            .filter(pastType => isGenerationGreaterThanOrEqualTo(pastType.generation.name as GenerationName, selectedGeneration))
-            .sort((a, b) => generationNameToNumber[a.generation.name as GenerationName] - generationNameToNumber[b.generation.name as GenerationName])[0]?.types;
-
-        const typesToUse = pastTypesToUse || this.pokemon.types;
-
-        if (pastTypesToUse) {
-            this.displayingMultipliersForGeneration = "For Generation " + generationNameToNumber[selectedGeneration].toString();
-        }
-        else {
-            this.displayingMultipliersForGeneration = "For Most Recent Generation";
-        }
-
-        typesToUse.forEach(typeToUse => {
-            this.getPokemonSubscription = this._typeService.getTypeByUrl(typeToUse.type.url)
-                .subscribe({
-                    next: receivedType => {
-                        this.pokemonTypes.push(receivedType);
-                    },
-                    complete: () => {
-                        if (typesToUse) {
-                            if (pastTypesToUse && pastTypesToUse.length === this.pokemonTypes.length) {
-                                switch (this.pokemonTypes.length) {
-                                    case 1: {
-                                        this.defensiveMultipliers =
-                                            this._typeService.getDefensiveDamageMultipliersForType(this.pokemonTypes[0]);
-                                        break;
-                                    }
-                                    case 2: {
-                                        this.defensiveMultipliers =
-                                            this._typeService.getDefensiveDamageMultipliersForTypes(this.pokemonTypes[0], this.pokemonTypes[1]);
-                                    }
-                                }
-                            }
-                            else if (this.pokemonTypes.length === this.pokemon?.types.length) {
-                                switch (this.pokemonTypes.length) {
-                                    case 1: {
-                                        this.defensiveMultipliers =
-                                            this._typeService.getDefensiveDamageMultipliersForType(this.pokemonTypes[0]);
-                                        break;
-                                    }
-                                    case 2: {
-                                        this.defensiveMultipliers =
-                                            this._typeService.getDefensiveDamageMultipliersForTypes(this.pokemonTypes[0], this.pokemonTypes[1]);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })
-        });
-
     }
 
     searchPokemonNames: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>

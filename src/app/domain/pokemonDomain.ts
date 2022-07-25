@@ -7,6 +7,7 @@ export interface PokemonDomain {
     id: number,
     name: string,
     generationId: number,
-    types: Type[],
-    defensiveDamageMultipliers: DamageMultipliers
+    typeNames: TypeName[],
+    defensiveDamageMultipliers: DamageMultipliers,
+    sprite: string | null
 }

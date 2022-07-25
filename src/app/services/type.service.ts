@@ -27,7 +27,18 @@ export class TypeService {
         return this.http.get<Type>(url);
     }
 
-    public getDefensiveDamageMultipliersForType(type: Type): DamageMultipliers {
+    public getDefensiveDamageMultipliers(types: Type[]): DamageMultipliers {
+        if (types.length === 1) {
+            return this.getDefensiveDamageMultipliersForType((types[0]));
+        }
+        else if (types.length === 2) {
+            return this.getDefensiveDamageMultipliersForTypes(types[0], types[1]);
+        }
+
+        throw new Error("Could not calculate damage multipliers. Unknown number of types provided.");
+    }
+
+    private getDefensiveDamageMultipliersForType(type: Type): DamageMultipliers {
         let defensiveMultipliers: DamageMultipliers = {
             four: [], two: [], one: [], half: [], quarter: [], zero: []
         };
@@ -58,7 +69,7 @@ export class TypeService {
         return defensiveMultipliers;
     }
 
-    public getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type): DamageMultipliers {
+    private getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type): DamageMultipliers {
         let defensiveMultipliers: DamageMultipliers = {
             four: [], two: [], one: [], half: [], quarter: [], zero: []
         };
@@ -99,9 +110,6 @@ export class TypeService {
                 halfMultiplierTypes.push(type.name as TypeName);
             };
         });
-
-        // Use rxjs distnct() to get a distinct list of types from the zerMultiplierTypes array.
-
 
         // Calculate two and four defensive multipliers
         allTypeNames.forEach(typeName => {
