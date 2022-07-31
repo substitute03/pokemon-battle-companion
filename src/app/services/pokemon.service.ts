@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError, interval, firstValueFrom } from 'rxjs';
-import { Pokemon, PokemonClient, NamedAPIResourceList, MainClient, Type, Generation, PokemonPastType, PokemonType, PokemonSprites } from "pokenode-ts";
+import { Pokemon, PokemonClient, NamedAPIResourceList, MainClient, Type, Generation, PokemonPastType, PokemonType } from "pokenode-ts";
 import { PokemonDomain } from "../domain/pokemonDomain";
 import { TypeName } from "../domain/typeDomain";
 import { DamageMultipliers } from "../domain/damageMultipliers";
@@ -66,8 +66,8 @@ export class PokemonService {
         const types: Type[] =
             await this.getPokemonTypesByGeneration(pokemonApi, selectedGenerationId);
 
-        const defensiveDamageMultipliers: DamageMultipliers =
-            this._typeService.getDefensiveDamageMultipliers(types);
+        const defensiveDamageMultipliers: DamageMultipliers = await this._typeService
+            .getDefensiveDamageMultipliersByGeneration(types, selectedGenerationId);
 
         const sprite: string | null = pokemonApi.sprites.other['official-artwork'].front_default;
 

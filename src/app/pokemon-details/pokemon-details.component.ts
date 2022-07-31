@@ -67,6 +67,7 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
             this.message = "Pokémon did not exist in generation " + selectedGenId;
         }
 
+        this.displayingMultipliersForGeneration = selectedGenId.toString();
         this.isLoading = false;
     }
 
