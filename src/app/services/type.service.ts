@@ -19,27 +19,32 @@ export class TypeService {
         this.mainClient = new MainClient();
     }
 
-    public getTypeById(id: number): Observable<Type> {
-        return this.http.get<Type>(`https://pokeapi.co/api/v2/type/${id}`);
-    }
-
-    public getTypeByName(name: string): Observable<Type> {
-        return this.http.get<Type>(`https://pokeapi.co/api/v2/type/${name}`);
-    }
-
-    public getTypeByUrl(url: string): Observable<Type> {
-        return this.http.get<Type>(url);
-    }
-
     public async getDefensiveDamageMultipliersByGeneration(types: Type[], generationId: number): Promise<DamageMultipliers> {
         if (types.length === 1) {
             return this.getDefensiveDamageMultipliersForType((types[0]), generationId);
         }
         else if (types.length === 2) {
-            return this.getDefensiveDamageMultipliersForTypes(types[0], types[1]);
+            return this.getDefensiveDamageMultipliersForTypes(types[0], types[1], generationId);
         }
 
         throw new Error("Could not calculate damage multipliers. Unknown number of types provided.");
+    }
+
+    public async getPastDamageRelationsDomainAsync(typeId: number): Promise<PastDamageRelationsDomain[]> {
+        const type: Type = await firstValueFrom(
+            this.http.get<Type>(`https://pokeapi.co/api/v2/type/${typeId}/`));
+
+        return type.past_damage_relations;
+    }
+
+    public async getTypeAddedInGenerationId(typeName: TypeName): Promise<number> {
+        const typeAddedInGenName: string =
+            (await this.pokemonClient.getTypeByName(typeName)).generation.name;
+
+        const typeAddedInGenId: number =
+            (await this.mainClient.game.getGenerationByName(typeAddedInGenName)).id
+
+        return typeAddedInGenId;
     }
 
     private async getDefensiveDamageMultipliersForType(type: Type, selectedGenId: number): Promise<DamageMultipliers> {
@@ -132,7 +137,7 @@ export class TypeService {
         return defensiveMultipliers;
     }
 
-    private async getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type): Promise<DamageMultipliers> {
+    private async getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type, selectedGenId: number): Promise<DamageMultipliers> {
         let defensiveMultipliers: DamageMultipliers = {
             four: [], two: [], one: [], half: [], quarter: [], zero: []
         };
@@ -212,23 +217,6 @@ export class TypeService {
         });
 
         return defensiveMultipliers;
-    }
-
-    public async getPastDamageRelationsDomainAsync(typeId: number): Promise<PastDamageRelationsDomain[]> {
-        const type: Type = await firstValueFrom(
-            this.http.get<Type>(`https://pokeapi.co/api/v2/type/${typeId}/`));
-
-        return type.past_damage_relations;
-    }
-
-    public async getTypeAddedInGenerationId(typeName: TypeName): Promise<number> {
-        const typeAddedInGenName: string =
-            (await this.pokemonClient.getTypeByName(typeName)).generation.name;
-
-        const typeAddedInGenId: number =
-            (await this.mainClient.game.getGenerationByName(typeAddedInGenName)).id
-
-        return typeAddedInGenId;
     }
 
     private calculatePastDamageRelationsToUse(pastDamageRelations: PastDamageRelationsDomain[],

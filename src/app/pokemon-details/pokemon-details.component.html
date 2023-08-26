@@ -2,59 +2,33 @@
     <div class="col-sm-2 mx-auto" style="min-width: 300px">
         <div class="vstack gap-4">
             <img class="img-fluid" style="width:500px" src="/assets/images/pokemon-logo.png">
-            <span class="display-5">
+            <span class="display-6">
                 Battle Companion
             </span>
             <form [formGroup]="pokemonForm" class="w-100">
                 <div class="form-floating">
                     <input formControlName="pokemonName" id="pokemonName" type="text" class="form-control"
-                        placeholder="abc" [ngbTypeahead]="searchPokemonNames" />
+                        placeholder="abc" [ngbTypeahead]="searchPokemonNames" (keydown.enter)="getPokemonDetails()" />
                     <label for="pokemonName">Pokémon name</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen1Checkbox"
-                        value="1" tabindex="-1">
-                    <label class="form-check-label" for="gen1Checkbox">I</label>
+                <div *ngFor="let generation of allGenerations" class="form-check form-check-inline">
+                    <input formControlName="generation" class="form-check-input" type="radio"
+                        id="gen{{generation.number}}Checkbox;" value="{{generation.number}}" tabindex="-1">
+                    <label class="form-check-label" for="gen{{generation.number}}Checkbox">{{generation.numeral |
+                        uppercase}}</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen2Checkbox"
-                        value="2" tabindex="-1">
-                    <label class="form-check-label" for="gen2Checkbox">II</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen3Checkbox"
-                        value="3" tabindex="-1">
-                    <label class="form-check-label" for="gen3Checkbox">III</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen4Checkbox"
-                        value="4" tabindex="-1">
-                    <label class="form-check-label" for="gen4Checkbox">IV</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen5Checkbox"
-                        value="5" tabindex="-1">
-                    <label class="form-check-label" for="gen5Checkbox">V</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen6Checkbox"
-                        value="6" tabindex="-1">
-                    <label class="form-check-label" for="gen6Checkbox">VI</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen7Checkbox"
-                        value="7" tabindex="-1">
-                    <label class="form-check-label" for="gen7Checkbox">VII</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio" id="gen8Checkbox"
-                        value="8" tabindex="-1">
-                    <label class="form-check-label" for="gen8Checkbox">VIII</label>
+                <div class="text-danger"
+                    *ngIf="pokemonForm.controls['generation'].invalid && pokemonForm.controls['generation'].touched">
+                    Please select a generation
                 </div>
             </form>
             <div>
                 <div *ngIf="!isLoading; else loadingSpinner">
                     <div class="row col-8 offset-2">
+                        <ng-template *ngIf="pokemon !== null">
+                            <h4>{{pokemon.name}}</h4>
+                            <img src="{{pokemon.sprite}}" />
+                        </ng-template>
                         <img *ngIf="pokemon != null" src="{{pokemon.sprite}}" />
                     </div>
                     <div>
@@ -91,52 +65,59 @@
 </div>
 
 <div *ngIf="pokemon != null" class="row col-6 offset-3 text-center mt-5">
-    <span class="display-6">Defensive Damage Multipliers for Gen {{displayingMultipliersForGeneration}}</span>
+    <span class="display-6 fs-3">Defensive Damage Multipliers for Gen
+        {{displayingMultipliersForGeneration}}</span>
 </div>
-<div *ngIf="pokemon != null" class="row mt-5 text-center align-items-center pb-5">
+<div *ngIf="pokemon != null" class="row mt-4 text-center align-items-center pb-5">
     <div class="col-3"></div>
     <div class="col-6 text-center">
         <div class="row">
             <div class="col-lg-2">
-                <h1 class="">4x</h1>
+                <h2 class="">4x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.four" class="type {{type}}"></span>
-                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.four.length === 0 && pokemon !== null">None</h3>
+                    <span class="display-6 fs-3"
+                        *ngIf="pokemon.defensiveDamageMultipliers.four.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
             <div class="col-lg-2">
-                <h1 class="">2x</h1>
+                <h2 class="">2x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.two" class="type {{type}}"></span>
-                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.two.length === 0 && pokemon !== null">None</h3>
+                    <span class="diplay-6 fs-3"
+                        *ngIf="pokemon.defensiveDamageMultipliers.two.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
-                <h1>1x</h1>
+                <h2>1x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.one" class="type {{type}}"></span>
-                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.one.length === 0 && pokemon !== null">None</h3>
+                    <span class="display-6 fs-3"
+                        *ngIf="pokemon.defensiveDamageMultipliers.one.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
-                <h1 class="">½x</h1>
+                <h2 class="">½x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.half" class="type {{type}}"></span>
-                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.half.length === 0 && pokemon !== null">None</h3>
+                    <span class="display-6 fs-3"
+                        *ngIf="pokemon.defensiveDamageMultipliers.half.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
-                <h1 class="">¼x</h1>
+                <h2 class="">¼x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.quarter" class="type {{type}}"></span>
-                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.quarter.length === 0 && pokemon !== null">None</h3>
+                    <span class="display-6 fs-3"
+                        *ngIf="pokemon.defensiveDamageMultipliers.quarter.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
             <div class="col-lg-2 mx-auto">
-                <h1>0x</h1>
+                <h2>0x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.zero" class="type {{type}}"></span>
-                    <h3 *ngIf="pokemon.defensiveDamageMultipliers.zero.length === 0 && pokemon !== null">None</h3>
+                    <span class="display-6 fs-3"
+                        *ngIf="pokemon.defensiveDamageMultipliers.zero.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
         </div>

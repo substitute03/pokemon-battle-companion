@@ -1,11 +1,8 @@
 import { Type } from "pokenode-ts"
 
 export interface GenerationDomain {
-    id: number,
     numeral: string,
-    types: Type[],
-    name: string,
-    url: string
+    number: number,
 }
 
 export type GenerationName =

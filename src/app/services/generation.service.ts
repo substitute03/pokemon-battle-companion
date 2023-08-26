@@ -5,6 +5,7 @@ import { catchError, retry } from 'rxjs/operators';
 import { NamedAPIResourceList, GameClient } from "pokenode-ts";
 import { DamageMultipliers } from "../domain/damageMultipliers"
 import { interval, firstValueFrom } from 'rxjs';
+import { GenerationDomain } from "../domain/generationDomain";
 
 @Injectable({
     providedIn: 'root'
@@ -12,20 +13,33 @@ import { interval, firstValueFrom } from 'rxjs';
 export class GenerationService {
     constructor(private http: HttpClient) { }
 
-    public getAllGenerations(): Observable<NamedAPIResourceList> {
+    public async getAllGenerationsDomain() {
+        return this.mapToGenerationDomain(await firstValueFrom(this.getAllGenerations()));
+    }
+
+    private getAllGenerations(): Observable<NamedAPIResourceList> {
         return this.http.get<NamedAPIResourceList>('https://pokeapi.co/api/v2/generation');
     }
 
-    public async getAllGenerationNamesAsync(): Promise<string[]> {
-        let allGenerations = await firstValueFrom(this.getAllGenerations());
+    private mapToGenerationDomain(generations: NamedAPIResourceList): GenerationDomain[] {
+        let generationsDomain: GenerationDomain[] = [];
 
-        let allNames: string[] = [];
-        allGenerations.results.forEach(result => {
-            allNames.push(result.name);
+        generations.results.forEach(g => {
+            // Extract the generation numberal from the generation name.
+            const generaionNumeral = g.name.slice(g.name.indexOf("-") + 1);
+
+            // Extract the generation number from the url.
+            const reversedUrl = g.url.split("").reverse().join("");
+            const firstSlashIndex = reversedUrl.indexOf("/");
+            const secondSlashIndex = reversedUrl.indexOf("/", firstSlashIndex + 1);
+            const generationNumber = Number(reversedUrl.slice(firstSlashIndex + 1, secondSlashIndex));
+
+            generationsDomain.push({
+                numeral: generaionNumeral,
+                number: generationNumber,
+            } as GenerationDomain);
         });
 
-        return allNames;
+        return generationsDomain;
     }
-
-
 }
