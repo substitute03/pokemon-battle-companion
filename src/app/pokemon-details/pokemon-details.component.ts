@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { GenerationName } from '../domain/generationDomain';
+import { GenerationDomain, GenerationName } from '../domain/generationDomain';
 import { PokemonService } from '../services/pokemon.service';
 import { TypeService } from '../services/type.service';
 import { Observable, OperatorFunction } from 'rxjs';
@@ -23,6 +23,7 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     public isLoading: boolean = false;
     public message: string = "";
     public allPokemonNames: string[] = [];
+    public allGenerations: GenerationDomain[] = [];
     public pokemon: PokemonDomain | null = null;
     public pokemonTypes: Type[] = [];
     public displayingMultipliersForGeneration: string = "";
@@ -34,19 +35,24 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
     pokemonForm = new FormGroup({
         pokemonName: new FormControl('', [Validators.required]),
-        generation: new FormControl('8'),
+        generation: new FormControl(null, [Validators.required]),
     });
 
-    constructor(private _pokemonService: PokemonService) { }
+    constructor(private _pokemonService: PokemonService, private _generationService: GenerationService) { }
 
     ngOnInit(): void {
         this.getAllPokemonNames();
+        this.getAllGenerationsDomain();
     }
 
     ngOnDestroy(): void { }
 
     public async getAllPokemonNames() {
         this.allPokemonNames = await this._pokemonService.getAllPokemonNamesAsync();
+    }
+
+    public async getAllGenerationsDomain() {
+        this.allGenerations = await this._generationService.getAllGenerationsDomain();
     }
 
     public async getPokemonDetails() {
