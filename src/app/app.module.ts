@@ -7,11 +7,13 @@ import { PokemonDetailsComponent } from './pokemon-details/pokemon-details.compo
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DamageMultipliersComponent } from './damage-multipliers/damage-multipliers.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        PokemonDetailsComponent
+        PokemonDetailsComponent,
+        DamageMultipliersComponent
     ],
     imports: [
         BrowserModule,

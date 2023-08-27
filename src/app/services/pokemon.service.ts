@@ -166,11 +166,24 @@ export class PokemonService {
         generationId: number,
         typeNames: TypeName[],
         defensiveDamageMultipliers: DamageMultipliers,
-        sprite: string | null)
-        : PokemonDomain {
+        sprite: string | null): PokemonDomain {
+
+        let capitalizeNextCharacter = true; // Start with true to capitalize the first character.
+        const displayName = name.replace(/-/g, " ").split("").map(char => {
+            if (capitalizeNextCharacter) {
+                char = char.toUpperCase(); // Capitalize the current character.
+                capitalizeNextCharacter = false; // Reset for next character.
+            }
+            if (char === " ") {
+                capitalizeNextCharacter = true;
+            }
+            return char;
+        }).join(""); // Join the modified characters back into a string.
+
         const pokemonDomain: PokemonDomain = {
             id: id,
             name: name,
+            displayName: displayName,
             generationId: generationId,
             typeNames: typeNames,
             defensiveDamageMultipliers: defensiveDamageMultipliers,

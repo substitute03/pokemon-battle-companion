@@ -6,6 +6,7 @@ import { TypeName } from "./typeDomain"
 export interface PokemonDomain {
     id: number,
     name: string,
+    displayName: string,
     generationId: number,
     typeNames: TypeName[],
     defensiveDamageMultipliers: DamageMultipliers,

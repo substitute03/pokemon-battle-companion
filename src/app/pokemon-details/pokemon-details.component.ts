@@ -18,8 +18,6 @@ import { PokemonDomain } from '../domain/pokemonDomain';
     styleUrls: ['./pokemon-details.component.css']
 })
 export class PokemonDetailsComponent implements OnInit, OnDestroy {
-
-
     public isLoading: boolean = false;
     public message: string = "";
     public allPokemonNames: string[] = [];
@@ -27,15 +25,11 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     public pokemon: PokemonDomain | null = null;
     public pokemonTypes: Type[] = [];
     public displayingMultipliersForGeneration: string = "";
-    public defensiveMultipliers: DamageMultipliers = {
-        four: [], two: [], one: [], half: [], quarter: [], zero: []
-    };
-
     public model: any;
 
     pokemonForm = new FormGroup({
         pokemonName: new FormControl('', [Validators.required]),
-        generation: new FormControl(null, [Validators.required]),
+        generation: new FormControl([Validators.required]),
     });
 
     constructor(private _pokemonService: PokemonService, private _generationService: GenerationService) { }
@@ -53,6 +47,17 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
 
     public async getAllGenerationsDomain() {
         this.allGenerations = await this._generationService.getAllGenerationsDomain();
+
+        const latestGeneration: number = this.allGenerations
+            .flatMap(g => g.number)
+            .sort((a, b) => b - a)[0];
+
+        this.pokemonForm.get("generation")?.setValue(latestGeneration);
+    }
+
+    public isSelectedGeneration(generationNumber: number): boolean {
+        const selectedGenId = parseInt(this.pokemonForm.get('generation')?.value);
+        return selectedGenId === generationNumber;
     }
 
     public async getPokemonDetails() {
@@ -82,12 +87,6 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         this.isLoading = true;
         this.pokemon = null;
         this.pokemonTypes = [];
-        this.defensiveMultipliers.four = [];
-        this.defensiveMultipliers.half = [];
-        this.defensiveMultipliers.one = [];
-        this.defensiveMultipliers.quarter = [];
-        this.defensiveMultipliers.two = [];
-        this.defensiveMultipliers.zero = [];
     }
 
     searchPokemonNames: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
