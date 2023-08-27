@@ -14,7 +14,7 @@
                 <h2 class="">2x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.two" class="type {{type}}"></span>
-                    <span class="diplay-6 fs-3"
+                    <span class="diplay-6 fs-4"
                         *ngIf="pokemon.defensiveDamageMultipliers.two.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
@@ -22,7 +22,7 @@
                 <h2>1x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.one" class="type {{type}}"></span>
-                    <span class="display-6 fs-3"
+                    <span class="display-6 fs-4"
                         *ngIf="pokemon.defensiveDamageMultipliers.one.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
@@ -30,7 +30,7 @@
                 <h2 class="">½x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.half" class="type {{type}}"></span>
-                    <span class="display-6 fs-3"
+                    <span class="display-6 fs-4"
                         *ngIf="pokemon.defensiveDamageMultipliers.half.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                 <h2 class="">¼x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.quarter" class="type {{type}}"></span>
-                    <span class="display-6 fs-3"
+                    <span class="display-6 fs-4"
                         *ngIf="pokemon.defensiveDamageMultipliers.quarter.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                 <h2>0x</h2>
                 <div class="vstack gap-3">
                     <span *ngFor="let type of pokemon.defensiveDamageMultipliers.zero" class="type {{type}}"></span>
-                    <span class="display-6 fs-3"
+                    <span class="display-6 fs-4"
                         *ngIf="pokemon.defensiveDamageMultipliers.zero.length === 0 && pokemon !== null">None</span>
                 </div>
             </div>
