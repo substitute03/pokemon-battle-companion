@@ -6,6 +6,7 @@ import { Pokemon, Type, PokemonClient, MainClient, TypeRelations, Generation } f
 import { allTypeNames, TypeName } from "../domain/typeDomain";
 import { DamageMultipliers } from "../domain/damageMultipliers";
 import { PastDamageRelationsDomain } from "../domain/pastDamageRelationsDomain";
+import { type } from "os";
 
 @Injectable({
     providedIn: 'root'
@@ -30,14 +31,36 @@ export class TypeService {
         throw new Error("Could not calculate damage multipliers. Unknown number of types provided.");
     }
 
-    public async getPastDamageRelationsDomainAsync(typeId: number): Promise<PastDamageRelationsDomain[]> {
+    public async getDefensiveMultipliersForAllTypesByGeneration(generationId: number): Promise<DamageMultipliers[]> {
+        const allTypes = await this.getAllTypes();
+
+        let damageMultipliersForAllTypes: DamageMultipliers[] = [];
+        for (let typeIndex = 1; typeIndex < allTypes.length; typeIndex++) {
+            const damageMultipliers = await this.getDefensiveDamageMultipliersByGeneration([allTypes[typeIndex]], generationId);
+
+            damageMultipliersForAllTypes.push(damageMultipliers);
+        }
+
+        return damageMultipliersForAllTypes;
+    }
+
+    public async getAllTypes(): Promise<Type[]> {
+        let types: Type[] = [];
+        for (let i = 0; i < allTypeNames.length; i++) {
+            types.push(await this.pokemonClient.getTypeByName(allTypeNames[i]));
+        }
+
+        return types;
+    }
+
+    private async getPastDamageRelationsDomainAsync(typeId: number): Promise<PastDamageRelationsDomain[]> {
         const type: Type = await firstValueFrom(
             this.http.get<Type>(`https://pokeapi.co/api/v2/type/${typeId}/`));
 
         return type.past_damage_relations;
     }
 
-    public async getTypeAddedInGenerationId(typeName: TypeName): Promise<number> {
+    private async getTypeAddedInGenerationId(typeName: TypeName): Promise<number> {
         const typeAddedInGenName: string =
             (await this.pokemonClient.getTypeByName(typeName)).generation.name;
 
@@ -49,7 +72,7 @@ export class TypeService {
 
     private async getDefensiveDamageMultipliersForType(type: Type, selectedGenId: number): Promise<DamageMultipliers> {
         let defensiveMultipliers: DamageMultipliers = {
-            four: [], two: [], one: [], half: [], quarter: [], zero: []
+            types: [type.name as TypeName], four: [], two: [], one: [], half: [], quarter: [], zero: []
         };
 
         let processedTypes: TypeName[] = [];
@@ -139,10 +162,9 @@ export class TypeService {
 
     private async getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type, selectedGenId: number): Promise<DamageMultipliers> {
         let defensiveMultipliers: DamageMultipliers = {
+            types: [type1.name as TypeName, type2.name as TypeName],
             four: [], two: [], one: [], half: [], quarter: [], zero: []
         };
-
-        // Query the Type endpoint to get the damage multipliers by gen for the types, and pass the gen id into this method
 
         let zeroMultiplierTypes: TypeName[] = [];
         type1.damage_relations.no_damage_from.forEach(type => {
@@ -155,7 +177,8 @@ export class TypeService {
 
         of(zeroMultiplierTypes)
             .pipe(distinct())
-            .subscribe(types => defensiveMultipliers.zero = types);
+            .subscribe(types => defensiveMultipliers.zero = types)
+            .unsubscribe();
 
         let twoMultplierTypes: TypeName[] = [];
         type1.damage_relations.double_damage_from.forEach(type => {
@@ -221,7 +244,7 @@ export class TypeService {
 
     private calculatePastDamageRelationsToUse(pastDamageRelations: PastDamageRelationsDomain[],
         selectedGenId: number, damageRelationsDifferentInGens: Generation[]): TypeRelations {
-        // Note: by this point, is is already confirmed that
+        // Note: by this point, it is already confirmed that
         // the selected genId is less that the max past genId.
 
         // Sort by gen id descending.

@@ -11,6 +11,7 @@ import { generationNameToNumber, isGenerationName, isGenerationGreaterThanOrEqua
 import { GenerationService } from '../services/generation.service'
 import { Type, Pokemon, PokemonType } from "pokenode-ts";
 import { PokemonDomain } from '../domain/pokemonDomain';
+import { allTypeNames, TypeName } from "../domain/typeDomain";
 
 @Component({
     selector: 'pbc-pokemon-details',
@@ -32,7 +33,7 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         generation: new FormControl([Validators.required]),
     });
 
-    constructor(private _pokemonService: PokemonService, private _generationService: GenerationService) { }
+    constructor(private _pokemonService: PokemonService, private _generationService: GenerationService, private _typeService: TypeService) { }
 
     ngOnInit(): void {
         this.getAllPokemonNames();
