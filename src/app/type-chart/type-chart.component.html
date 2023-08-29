@@ -1,0 +1,29 @@
+<div class="container-fluid col-6">
+    <div *ngIf="types.length > 0 && damageMultipliers.length > 0" class="row col-12">
+        <table class="type-grid">
+            <tr>
+                <td>
+                    <div class="text-black">def →</div>
+                    <div class="text-black">att ↓</div>
+                </td>
+                <td *ngFor="let type of types" class="type-cell color-{{type}} text-white">
+                    {{type.substring(0, 3)}}
+                </td>
+            </tr>
+            <tr *ngFor="let dm of damageMultipliers">
+                <td class="type-cell color-{{dm.types[0]}} text-white">
+                    {{dm.types[0].substring(0, 3)}}
+                </td>
+                <td *ngFor="let type of types" class="text-center fs-6 text-white type-cell" [ngClass]="{
+                    'bg-success': doesContain(dm.two, type),
+                    'bg-danger': doesContain(dm.half, type),
+                    'bg-secondary': doesContain(dm.zero, type)}">
+                    <div *ngIf="doesContain(dm.one, type)"></div>
+                    <div *ngIf="doesContain(dm.two, type)">2</div>
+                    <div *ngIf="doesContain(dm.half, type)">½</div>
+                    <div *ngIf="doesContain(dm.zero, type)">0</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

@@ -14,7 +14,8 @@ export class GenerationService {
     constructor(private http: HttpClient) { }
 
     public async getAllGenerationsDomain() {
-        return this.mapToGenerationDomain(await firstValueFrom(this.getAllGenerations()));
+        let allGens = this.mapToGenerationDomain(await firstValueFrom(this.getAllGenerations()));
+        return allGens;
     }
 
     private getAllGenerations(): Observable<NamedAPIResourceList> {

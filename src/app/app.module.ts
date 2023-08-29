@@ -8,12 +8,14 @@ import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DamageMultipliersComponent } from './damage-multipliers/damage-multipliers.component';
+import { TypeChartComponent } from './type-chart/type-chart.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         PokemonDetailsComponent,
-        DamageMultipliersComponent
+        DamageMultipliersComponent,
+        TypeChartComponent
     ],
     imports: [
         BrowserModule,
@@ -22,7 +24,7 @@ import { DamageMultipliersComponent } from './damage-multipliers/damage-multipli
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([
-            { path: '', component: PokemonDetailsComponent, pathMatch: 'full', data: { animation: 'Page1' } },
+            { path: '', component: TypeChartComponent, pathMatch: 'full', data: { animation: 'Page1' } },
             { path: '**', component: PokemonDetailsComponent } // wildcard path if the path doesn't match anything
         ]),
         NgbModule
