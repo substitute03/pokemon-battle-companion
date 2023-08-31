@@ -1,4 +1,4 @@
-<div class="container-fluid col-6">
+<div class="container-fluid col-4">
     <div *ngIf="types.length > 0 && damageMultipliers.length > 0" class="row col-12">
         <table class="type-grid">
             <tr>
@@ -6,15 +6,19 @@
                     <div class="text-black">def →</div>
                     <div class="text-black">att ↓</div>
                 </td>
-                <td *ngFor="let type of types" class="type-cell color-{{type}} text-white">
+                <td *ngFor="let type of types; let c = index" #typeCell class="type-cell color-{{type}} text-white"
+                    [attr.col]="c" (mouseenter)="onCellMouseEnter(-1, c)" (mouseleave)="onCellMouseLeave(-1, c)">
                     {{type.substring(0, 3)}}
                 </td>
             </tr>
-            <tr *ngFor="let dm of damageMultipliers">
-                <td class="type-cell color-{{dm.types[0]}} text-white">
+            <tr *ngFor="let dm of damageMultipliers; let r = index">
+                <td #typeCell class="type-cell color-{{dm.types[0]}} text-white" [attr.row]="r"
+                    (mouseenter)="onCellMouseEnter(r, -1)" (mouseleave)="onCellMouseLeave(r, -1)">
                     {{dm.types[0].substring(0, 3)}}
                 </td>
-                <td *ngFor="let type of types" class="text-center fs-6 text-white type-cell" [ngClass]="{
+                <td *ngFor="let type of types; let c = index" [attr.row]="r" [attr.col]="c" #typeCell
+                    class="text-center fs-6 text-white type-cell" (mouseenter)="onCellMouseEnter(r, c)"
+                    (mouseleave)="onCellMouseLeave(r, c)" [ngClass]="{
                     'bg-success': doesContain(dm.two, type),
                     'bg-danger': doesContain(dm.half, type),
                     'bg-secondary': doesContain(dm.zero, type)}">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { DamageMultipliers } from '../domain/damageMultipliers';
 import { TypeService } from "../services/type.service";
 import { GenerationDomain } from '../domain/generationDomain';
@@ -11,12 +11,12 @@ import { GenerationService } from '../services/generation.service';
 })
 export class TypeChartComponent implements OnInit {
     allGenerations: GenerationDomain[] = [];
-
     types: string[] = [];
     damageMultipliers: DamageMultipliers[] = [];
     selectedGenerationId: number = 0;
+    @ViewChildren('typeCell', { read: ElementRef }) typeCellElements: QueryList<ElementRef> | undefined;
 
-    constructor(private _typeService: TypeService, private _generationService: GenerationService) { }
+    constructor(private _typeService: TypeService, private _generationService: GenerationService, private renderer: Renderer2) { }
 
     ngOnInit(): void {
         this.setData();
@@ -33,6 +33,26 @@ export class TypeChartComponent implements OnInit {
         }
 
         return false;
+    }
+
+    public onCellMouseEnter(r: number, c: number): void {
+        this.typeCellElements
+            ?.filter(cell => cell.nativeElement.getAttribute('row') === r.toString() ||
+                cell.nativeElement.getAttribute('col') === c.toString())
+            .forEach(cell => {
+                this.renderer.removeClass(cell.nativeElement, 'type-cell');
+                this.renderer.addClass(cell.nativeElement, 'type-cell-highlighted')
+            });
+    }
+
+    public onCellMouseLeave(r: number, c: number): void {
+        this.typeCellElements
+            ?.filter(cell => cell.nativeElement.getAttribute('row') === r.toString() ||
+                cell.nativeElement.getAttribute('col') === c.toString())
+            .forEach(cell => {
+                this.renderer.removeClass(cell.nativeElement, 'type-cell-highlighted');
+                this.renderer.addClass(cell.nativeElement, 'type-cell')
+            });
     }
 
     private async setGenerations(): Promise<void> {
@@ -53,7 +73,7 @@ export class TypeChartComponent implements OnInit {
     private async setDamageMultipliers(): Promise<void> {
         console.log("genId 2: " + new Date + this.selectedGenerationId);
         this.damageMultipliers = await this._typeService
-            .getDefensiveMultipliersForAllTypesByGeneration(9)
+            .getDefensiveMultipliersForAllTypesByGeneration(6)
 
         this.types = this.damageMultipliers.flatMap(dm => dm.types);
     }
