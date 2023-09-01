@@ -24,7 +24,8 @@ import { TypeChartComponent } from './type-chart/type-chart.component';
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([
-            { path: '', component: TypeChartComponent, pathMatch: 'full', data: { animation: 'Page1' } },
+            { path: '', component: PokemonDetailsComponent, pathMatch: 'full', data: { animation: 'Page1' } },
+            { path: 'typechart', component: TypeChartComponent, pathMatch: 'full', data: { animation: 'Page1' } },
             { path: '**', component: PokemonDetailsComponent } // wildcard path if the path doesn't match anything
         ]),
         NgbModule

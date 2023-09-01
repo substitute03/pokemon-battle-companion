@@ -66,14 +66,12 @@ export class TypeChartComponent implements OnInit {
         this.selectedGenerationId = this.allGenerations
             .map(g => g.number)
             .sort((a, b) => b - a)[0];
-
-        console.log("genId 1: " + new Date + this.selectedGenerationId)
     }
 
     private async setDamageMultipliers(): Promise<void> {
         console.log("genId 2: " + new Date + this.selectedGenerationId);
         this.damageMultipliers = await this._typeService
-            .getDefensiveMultipliersForAllTypesByGeneration(1)
+            .getDefensiveMultipliersForAllTypesByGeneration(this.selectedGenerationId)
 
         this.types = this.damageMultipliers.flatMap(dm => dm.types);
     }
