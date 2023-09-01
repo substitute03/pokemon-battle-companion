@@ -73,7 +73,7 @@ export class TypeChartComponent implements OnInit {
     private async setDamageMultipliers(): Promise<void> {
         console.log("genId 2: " + new Date + this.selectedGenerationId);
         this.damageMultipliers = await this._typeService
-            .getDefensiveMultipliersForAllTypesByGeneration(6)
+            .getDefensiveMultipliersForAllTypesByGeneration(1)
 
         this.types = this.damageMultipliers.flatMap(dm => dm.types);
     }

@@ -22,21 +22,29 @@ export class TypeService {
 
     public async getDefensiveDamageMultipliersByGeneration(types: Type[], generationId: number): Promise<DamageMultipliers> {
         if (types.length === 1) {
-            return this.getDefensiveDamageMultipliersForType((types[0]), generationId);
+            return await this.getDefensiveDamageMultipliersForType((types[0]), generationId);
         }
         else if (types.length === 2) {
-            return this.getDefensiveDamageMultipliersForTypes(types[0], types[1], generationId);
+            return await this.getDefensiveDamageMultipliersForTypes(types[0], types[1], generationId);
         }
 
         throw new Error("Could not calculate damage multipliers. Unknown number of types provided.");
     }
 
     public async getDefensiveMultipliersForAllTypesByGeneration(generationId: number): Promise<DamageMultipliers[]> {
-        const allTypes = await this.getAllTypes();
+        const allTypes: Type[] = await this.getAllTypes();
+
+        let typesInGen: Type[] = [];
+        for (let i = 0; i < allTypes.length; i++) {
+            let typeAddedInGen = await this.getTypeAddedInGenerationId(allTypes[i].name);
+            if (typeAddedInGen <= generationId) {
+                typesInGen.push(allTypes[i]);
+            }
+        }
 
         let damageMultipliersForAllTypes: DamageMultipliers[] = [];
-        for (let typeIndex = 1; typeIndex < allTypes.length; typeIndex++) {
-            const damageMultipliers = await this.getDefensiveDamageMultipliersByGeneration([allTypes[typeIndex]], generationId);
+        for (let typeIndex = 0; typeIndex < typesInGen.length; typeIndex++) {
+            const damageMultipliers = await this.getDefensiveDamageMultipliersByGeneration([typesInGen[typeIndex]], generationId);
 
             damageMultipliersForAllTypes.push(damageMultipliers);
         }
@@ -46,11 +54,29 @@ export class TypeService {
 
     public async getAllTypes(): Promise<Type[]> {
         let types: Type[] = [];
+        let allTypeNames: string[] = await this.getAllTypeNames();
         for (let i = 0; i < allTypeNames.length; i++) {
             types.push(await this.pokemonClient.getTypeByName(allTypeNames[i]));
         }
 
         return types;
+    }
+
+    private async getAllTypeNames(): Promise<string[]> {
+        // Get URLs for all types from the Types Named Resource
+        const typeUrls = (await this.pokemonClient.listTypes()).results.map(r => r.url);
+
+        // Get the Types from the API for each URL.
+        let types: Type[] = [];
+        for (let i = 0; i < typeUrls.length; i++) {
+            let type: Type = (await firstValueFrom(this.http.get<Type>(`${typeUrls[i]}`)));
+            types.push(type);
+        }
+
+        // Filter out any Type with an id > 10000 as these are not mainline types.
+        const mainlineTypeNames: string[] = types.filter(t => t.id < 10000).map(t => t.name);
+
+        return mainlineTypeNames;
     }
 
     private async getPastDamageRelationsDomainAsync(typeId: number): Promise<PastDamageRelationsDomain[]> {
@@ -60,7 +86,7 @@ export class TypeService {
         return type.past_damage_relations;
     }
 
-    private async getTypeAddedInGenerationId(typeName: TypeName): Promise<number> {
+    private async getTypeAddedInGenerationId(typeName: string): Promise<number> {
         const typeAddedInGenName: string =
             (await this.pokemonClient.getTypeByName(typeName)).generation.name;
 
@@ -110,50 +136,52 @@ export class TypeService {
                 damageRelationsDifferentInGens);
         }
 
-        // Calculate double damage from.
-        for (const type of damageRelationsToUse.double_damage_from) {
-            const typeAddedInGenId: number =
-                await this.getTypeAddedInGenerationId(type.name as TypeName);
+        if (damageRelationsToUse) {
+            // Calculate double damage from.
+            for (const type of damageRelationsToUse.double_damage_from) {
+                const typeAddedInGenId: number =
+                    await this.getTypeAddedInGenerationId(type.name as TypeName);
 
-            if (selectedGenId >= typeAddedInGenId) {
-                defensiveMultipliers.two.push(type.name as TypeName);
+                if (selectedGenId >= typeAddedInGenId) {
+                    defensiveMultipliers.two.push(type.name as TypeName);
+                }
+
+                processedTypes.push(type.name as TypeName);
             }
 
-            processedTypes.push(type.name as TypeName);
-        }
+            // Calculate half damage from.
+            for (const type of damageRelationsToUse.half_damage_from) {
+                const typeAddedInGenId: number =
+                    await this.getTypeAddedInGenerationId(type.name as TypeName);
 
-        // Calculate half damage from.
-        for (const type of damageRelationsToUse.half_damage_from) {
-            const typeAddedInGenId: number =
-                await this.getTypeAddedInGenerationId(type.name as TypeName);
+                if (selectedGenId >= typeAddedInGenId) {
+                    defensiveMultipliers.half.push(type.name as TypeName);
+                }
 
-            if (selectedGenId >= typeAddedInGenId) {
-                defensiveMultipliers.half.push(type.name as TypeName);
+                processedTypes.push(type.name as TypeName);
             }
 
-            processedTypes.push(type.name as TypeName);
-        }
+            // Calculate zero damage from.
+            for (const type of damageRelationsToUse.no_damage_from) {
+                const typeAddedInGenId: number =
+                    await this.getTypeAddedInGenerationId(type.name as TypeName);
 
-        // Calculate zero damage from.
-        for (const type of damageRelationsToUse.no_damage_from) {
-            const typeAddedInGenId: number =
-                await this.getTypeAddedInGenerationId(type.name as TypeName);
+                if (selectedGenId >= typeAddedInGenId) {
+                    defensiveMultipliers.zero.push(type.name as TypeName);
+                }
 
-            if (selectedGenId >= typeAddedInGenId) {
-                defensiveMultipliers.zero.push(type.name as TypeName);
+                processedTypes.push(type.name as TypeName);
             }
 
-            processedTypes.push(type.name as TypeName);
-        }
+            // Calculate x1 damage from.
+            // Add all types that have not been processed that exist in the selected generation.
+            for (const typeName of allTypeNames) {
+                const typeAddedInGenId: number =
+                    await this.getTypeAddedInGenerationId(typeName);
 
-        // Calculate x1 damage from.
-        // Add all types that have not been processed that exist in the selected generation.
-        for (const typeName of allTypeNames) {
-            const typeAddedInGenId: number =
-                await this.getTypeAddedInGenerationId(typeName);
-
-            if (!processedTypes.includes(typeName) && typeAddedInGenId <= selectedGenId) {
-                defensiveMultipliers.one.push(typeName);
+                if (!processedTypes.includes(typeName) && typeAddedInGenId <= selectedGenId) {
+                    defensiveMultipliers.one.push(typeName);
+                }
             }
         }
 
@@ -262,7 +290,7 @@ export class TypeService {
         }
 
         return pastDamageRelations
-            .filter(pdr => pdr.generation.name === genToUse.name)
+            .filter(pdr => pdr.generation?.name === genToUse?.name)
             .map(pdr => pdr.damage_relations)[0];
     }
 }
