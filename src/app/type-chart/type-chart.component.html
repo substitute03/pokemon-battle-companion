@@ -30,13 +30,13 @@
                 <td *ngFor="let type of types; let c = index" [attr.row]="r" [attr.col]="c" #typeCell
                     class="text-center fs-6 text-white type-cell" (mouseenter)="onCellMouseEnter(r, c)"
                     (mouseleave)="onCellMouseLeave(r, c)" [ngClass]="{
-                    'bg-success': doesContain(dm.two, type),
-                    'bg-danger': doesContain(dm.half, type),
-                    'bg-secondary': doesContain(dm.zero, type)}">
-                    <div *ngIf="doesContain(dm.one, type)"></div>
-                    <div *ngIf="doesContain(dm.two, type)">2</div>
-                    <div *ngIf="doesContain(dm.half, type)">½</div>
-                    <div *ngIf="doesContain(dm.zero, type)">0</div>
+                    'bg-success': calculateDamage(types[r], types[c], 'two'),
+                    'bg-danger': calculateDamage(types[r], types[c], 'half'),
+                    'bg-secondary': calculateDamage(types[r], types[c], 'zero')}">
+                    <div *ngIf="calculateDamage(types[r], types[c], 'one')"></div>
+                    <div *ngIf="calculateDamage(types[r], types[c], 'two')">2</div>
+                    <div *ngIf="calculateDamage(types[r], types[c], 'half')">½</div>
+                    <div *ngIf="calculateDamage(types[r], types[c], 'zero')">0</div>
                 </td>
             </tr>
         </table>

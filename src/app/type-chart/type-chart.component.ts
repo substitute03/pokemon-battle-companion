@@ -28,9 +28,34 @@ export class TypeChartComponent implements OnInit {
         await this.setDamageMultipliers();
     }
 
-    public doesContain(dmMultiplierTypes: string[], type: string): boolean {
-        if (dmMultiplierTypes.find(dmt => dmt === type)) {
-            return true;
+    public calculateDamage(attacker: string, defender: string, multiplier: string): boolean {
+        if (multiplier === "one") {
+            if (this.damageMultipliers
+                .find(dm => dm.types[0] === defender)?.one
+                .find(o => o === attacker)) {
+                return true;
+            }
+        }
+        else if (multiplier === "two") {
+            if (this.damageMultipliers
+                .find(dm => dm.types[0] === defender)?.two
+                .find(o => o === attacker)) {
+                return true;
+            }
+        }
+        else if (multiplier === "half") {
+            if (this.damageMultipliers
+                .find(dm => dm.types[0] === defender)?.half
+                .find(o => o === attacker)) {
+                return true;
+            }
+        }
+        else if (multiplier === "zero") {
+            if (this.damageMultipliers
+                .find(dm => dm.types[0] === defender)?.zero
+                .find(zero => zero === attacker)) {
+                return true;
+            }
         }
 
         return false;
@@ -79,6 +104,7 @@ export class TypeChartComponent implements OnInit {
         this.damageMultipliers = await this._typeService
             .getDefensiveMultipliersForAllTypesByGeneration(this.selectedGenerationId)
 
+        const a = this.damageMultipliers;
         this.types = this.damageMultipliers.flatMap(dm => dm.types);
         this.isLoading = false;
     }
