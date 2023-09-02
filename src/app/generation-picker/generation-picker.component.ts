@@ -25,11 +25,14 @@ export class GenerationPickerComponent implements OnInit {
             .flatMap(g => g.number)
             .sort((a, b) => b - a)[0];
 
-        this.selectedGeneration = latestGeneration;
+        this.selectGeneration(latestGeneration);
     }
 
     public selectGeneration(generation: number): void {
-        this.selectedGeneration = generation;
-        this.generationSelected.emit(generation);
+        if (this.selectedGeneration !== generation) {
+            this.selectedGeneration = generation;
+            this.generationSelected.emit(generation);
+            this.changeDetectorRef.detectChanges();
+        }
     }
 }

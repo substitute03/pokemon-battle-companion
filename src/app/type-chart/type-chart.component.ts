@@ -15,6 +15,8 @@ export class TypeChartComponent implements OnInit {
     damageMultipliers: DamageMultipliers[] = [];
     selectedGenerationId: number = 0;
     isLoading: boolean = false;
+    frozenRowIndex: number = -1;
+    frozenColumnIndex: number = -1;
     @ViewChildren('typeCell', { read: ElementRef }) typeCellElements: QueryList<ElementRef> | undefined;
 
     constructor(private _typeService: TypeService, private _generationService: GenerationService, private renderer: Renderer2) { }
@@ -62,13 +64,23 @@ export class TypeChartComponent implements OnInit {
     }
 
     public onCellMouseEnter(r: number, c: number): void {
-        this.typeCellElements
-            ?.filter(cell => cell.nativeElement.getAttribute('row') === r.toString() ||
-                cell.nativeElement.getAttribute('col') === c.toString())
-            .forEach(cell => {
-                this.renderer.removeClass(cell.nativeElement, 'type-cell');
-                this.renderer.addClass(cell.nativeElement, 'type-cell-highlighted')
-            });
+        if (this.frozenRowIndex === -1) {
+            this.typeCellElements
+                ?.filter(cell => cell.nativeElement.getAttribute('row') === r.toString())
+                .forEach(cell => {
+                    this.renderer.removeClass(cell.nativeElement, 'type-cell');
+                    this.renderer.addClass(cell.nativeElement, 'type-cell-highlighted')
+                });
+        }
+
+        if (this.frozenColumnIndex === -1) {
+            this.typeCellElements
+                ?.filter(cell => cell.nativeElement.getAttribute('col') === c.toString())
+                .forEach(cell => {
+                    this.renderer.removeClass(cell.nativeElement, 'type-cell');
+                    this.renderer.addClass(cell.nativeElement, 'type-cell-highlighted')
+                });
+        }
     }
 
     public onCellMouseLeave(r: number, c: number): void {
@@ -76,9 +88,30 @@ export class TypeChartComponent implements OnInit {
             ?.filter(cell => cell.nativeElement.getAttribute('row') === r.toString() ||
                 cell.nativeElement.getAttribute('col') === c.toString())
             .forEach(cell => {
-                this.renderer.removeClass(cell.nativeElement, 'type-cell-highlighted');
-                this.renderer.addClass(cell.nativeElement, 'type-cell')
+                if (cell.nativeElement.getAttribute('row') !== this.frozenRowIndex.toString() && cell.nativeElement.getAttribute('col') !== this.frozenColumnIndex.toString()) {
+                    this.renderer.removeClass(cell.nativeElement, 'type-cell-highlighted');
+                    this.renderer.addClass(cell.nativeElement, 'type-cell')
+                }
             });
+    }
+
+    public freezeRow(r: number): void {
+        if (this.frozenRowIndex !== r && this.frozenRowIndex === -1) {
+            this.frozenRowIndex = r;
+        }
+        else if (this.frozenRowIndex === r) {
+            this.frozenRowIndex = -1;
+        }
+
+    }
+
+    public freezeColumn(c: number): void {
+        if (this.frozenColumnIndex !== c && this.frozenColumnIndex === -1) {
+            this.frozenColumnIndex = c;
+        }
+        else if (this.frozenColumnIndex === c) {
+            this.frozenColumnIndex = -1;
+        }
     }
 
     public generationSelected(selectedGeneration: number): void {

@@ -3,6 +3,8 @@
 </div>
 <div *ngFor="let generation of allGenerations" class="form-check form-check-inline">
     <input class="form-check-input" type="radio" name="generation" id="gen{{generation.number}}Checkbox"
-        [value]="generation.number" (click)="selectGeneration(generation.number)">
+        [value]="generation.number" [checked]="generation.number === selectedGeneration"
+        [ngClass]="{'selected': generation.number === selectedGeneration}"
+        (click)="selectGeneration(generation.number)">
     <label class="form-check-label" for="gen{{generation.number}}Checkbox">{{generation.numeral | uppercase}}</label>
 </div>

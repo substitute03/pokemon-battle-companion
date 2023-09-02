@@ -18,13 +18,15 @@
                     <div class="text-black">att ↓</div>
                 </td>
                 <td *ngFor="let type of types; let c = index" #typeCell class="type-cell color-{{type}} text-white"
-                    [attr.col]="c" (mouseenter)="onCellMouseEnter(-1, c)" (mouseleave)="onCellMouseLeave(-1, c)">
+                    [attr.col]="c" (mouseenter)="onCellMouseEnter(-1, c)" (mouseleave)="onCellMouseLeave(-1, c)"
+                    (click)="freezeColumn(c)">
                     {{type.substring(0, 3)}}
                 </td>
             </tr>
             <tr *ngFor="let dm of damageMultipliers; let r = index">
                 <td #typeCell class="type-cell color-{{dm.types[0]}} text-white" [attr.row]="r"
-                    (mouseenter)="onCellMouseEnter(r, -1)" (mouseleave)="onCellMouseLeave(r, -1)">
+                    (mouseenter)="onCellMouseEnter(r, -1)" (mouseleave)="onCellMouseLeave(r, -1)"
+                    (click)="freezeRow(r)">
                     {{dm.types[0].substring(0, 3)}}
                 </td>
                 <td *ngFor="let type of types; let c = index" [attr.row]="r" [attr.col]="c" #typeCell
