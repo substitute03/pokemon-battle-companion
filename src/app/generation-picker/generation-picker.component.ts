@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { GenerationDomain } from '../domain/generationDomain';
 import { GenerationService } from '../services/generation.service';
 
@@ -10,6 +10,7 @@ import { GenerationService } from '../services/generation.service';
 export class GenerationPickerComponent implements OnInit {
     public allGenerations: GenerationDomain[] = [];
     public selectedGeneration: number | undefined;
+    @Input() showTitle: boolean = true;
     @Output() generationSelected: EventEmitter<number> = new EventEmitter<number>();
 
     constructor(private _generationService: GenerationService, private changeDetectorRef: ChangeDetectorRef) { }

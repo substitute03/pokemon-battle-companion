@@ -141,4 +141,29 @@ export class TypeChartComponent implements OnInit {
         this.types = this.damageMultipliers.flatMap(dm => dm.types);
         this.isLoading = false;
     }
+
+    public getDamageText(attacker: string, defender: string): string | undefined {
+        if (this.damageMultipliers
+            .find(dm => dm.types[0] === defender)?.one
+            .find(o => o === attacker)) {
+            return "";
+        }
+        if (this.damageMultipliers
+            .find(dm => dm.types[0] === defender)?.two
+            .find(o => o === attacker)) {
+            return "2";
+        }
+        if (this.damageMultipliers
+            .find(dm => dm.types[0] === defender)?.half
+            .find(o => o === attacker)) {
+            return "½";
+        }
+        if (this.damageMultipliers
+            .find(dm => dm.types[0] === defender)?.zero
+            .find(zero => zero === attacker)) {
+            return "0";
+        }
+
+        return ""
+    }
 }

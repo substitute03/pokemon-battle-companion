@@ -61,6 +61,10 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
         return selectedGenId === generationNumber;
     }
 
+    public generationSelected(selectedGeneration: number): void {
+        this.pokemonForm.get("generation")?.setValue(selectedGeneration);
+    }
+
     public async getPokemonDetails() {
         if (this.pokemonForm.invalid) {
             this.pokemonForm.markAllAsTouched(); // Mark as touched to display validation if it is not already shown.

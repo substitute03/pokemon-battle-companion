@@ -11,12 +11,8 @@
                         placeholder="abc" [ngbTypeahead]="searchPokemonNames" (keydown.enter)="getPokemonDetails()" />
                     <label for="pokemonName">Pokémon name</label>
                 </div>
-                <div *ngFor="let generation of allGenerations" class="form-check form-check-inline">
-                    <input formControlName="generation" class="form-check-input" type="radio"
-                        id="gen{{generation.number}}Checkbox;" [value]="generation.number" tabindex="-1">
-                    <label class="form-check-label" for="gen{{generation.number}}Checkbox">{{generation.numeral |
-                        uppercase}}</label>
-                </div>
+                <pbc-generation-picker [showTitle]="false"
+                    (generationSelected)="generationSelected($event)"></pbc-generation-picker>
                 <div class="text-danger"
                     *ngIf="pokemonForm.controls['generation'].invalid && pokemonForm.controls['generation'].touched">
                     Please select a generation

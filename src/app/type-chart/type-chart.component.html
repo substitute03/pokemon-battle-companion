@@ -1,7 +1,6 @@
 <div class="row col-4 mx-auto container-fluid">
     <pbc-generation-picker *ngIf="allGenerations"
         (generationSelected)="generationSelected($event)"></pbc-generation-picker>
-
     <div *ngIf="isLoading">
         <!-- Use 'd-flex' and 'justify-content-center' to center horizontally -->
         <div class="spinner-grow text-danger" role="status">
@@ -35,10 +34,7 @@
                     'bg-success': calculateDamage(types[r], types[c], 'two'),
                     'bg-danger': calculateDamage(types[r], types[c], 'half'),
                     'bg-secondary': calculateDamage(types[r], types[c], 'zero')}">
-                    <div *ngIf="calculateDamage(types[r], types[c], 'one')"></div>
-                    <div *ngIf="calculateDamage(types[r], types[c], 'two')">2</div>
-                    <div *ngIf="calculateDamage(types[r], types[c], 'half')">½</div>
-                    <div *ngIf="calculateDamage(types[r], types[c], 'zero')">0</div>
+                    <div>{{getDamageText(types[r], types[c])}}</div>
                 </td>
             </tr>
         </table>
