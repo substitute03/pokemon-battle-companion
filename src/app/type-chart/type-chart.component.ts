@@ -14,6 +14,7 @@ export class TypeChartComponent implements OnInit {
     types: string[] = [];
     damageMultipliers: DamageMultipliers[] = [];
     selectedGenerationId: number = 0;
+    isLoading: boolean = false;
     @ViewChildren('typeCell', { read: ElementRef }) typeCellElements: QueryList<ElementRef> | undefined;
 
     constructor(private _typeService: TypeService, private _generationService: GenerationService, private renderer: Renderer2) { }
@@ -55,6 +56,11 @@ export class TypeChartComponent implements OnInit {
             });
     }
 
+    public generationSelected(selectedGeneration: number): void {
+        this.selectedGenerationId = selectedGeneration;
+        this.setDamageMultipliers();
+    }
+
     private async setGenerations(): Promise<void> {
         this.allGenerations = await this._generationService.getAllGenerationsDomain();
 
@@ -69,10 +75,11 @@ export class TypeChartComponent implements OnInit {
     }
 
     private async setDamageMultipliers(): Promise<void> {
-        console.log("genId 2: " + new Date + this.selectedGenerationId);
+        this.isLoading = true;
         this.damageMultipliers = await this._typeService
             .getDefensiveMultipliersForAllTypesByGeneration(this.selectedGenerationId)
 
         this.types = this.damageMultipliers.flatMap(dm => dm.types);
+        this.isLoading = false;
     }
 }

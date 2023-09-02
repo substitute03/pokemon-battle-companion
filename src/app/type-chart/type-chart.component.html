@@ -1,6 +1,17 @@
-<div class="container-fluid col-4">
-    <div *ngIf="types.length > 0 && damageMultipliers.length > 0" class="row col-12">
-        <table class="type-grid">
+<div class="row col-4 mx-auto container-fluid">
+    <pbc-generation-picker *ngIf="allGenerations"
+        (generationSelected)="generationSelected($event)"></pbc-generation-picker>
+
+    <div *ngIf="isLoading">
+        <!-- Use 'd-flex' and 'justify-content-center' to center horizontally -->
+        <div class="spinner-grow text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+<div class="container-fluid col-4 mb-5">
+    <div *ngIf="types && damageMultipliers && isLoading === false" class="row">
+        <table class="type-grid mt-3">
             <tr>
                 <td>
                     <div class="text-black">def →</div>

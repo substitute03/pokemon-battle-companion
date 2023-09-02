@@ -1,0 +1,8 @@
+<div class="row col-12 text-left">
+    <label class="h5">Generation:</label>
+</div>
+<div *ngFor="let generation of allGenerations" class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="generation" id="gen{{generation.number}}Checkbox"
+        [value]="generation.number" (click)="selectGeneration(generation.number)">
+    <label class="form-check-label" for="gen{{generation.number}}Checkbox">{{generation.numeral | uppercase}}</label>
+</div>

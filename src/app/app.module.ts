@@ -9,13 +9,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DamageMultipliersComponent } from './damage-multipliers/damage-multipliers.component';
 import { TypeChartComponent } from './type-chart/type-chart.component';
+import { GenerationPickerComponent } from './generation-picker/generation-picker.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         PokemonDetailsComponent,
         DamageMultipliersComponent,
-        TypeChartComponent
+        TypeChartComponent,
+        GenerationPickerComponent
     ],
     imports: [
         BrowserModule,
