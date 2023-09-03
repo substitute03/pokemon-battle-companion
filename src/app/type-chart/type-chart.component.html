@@ -2,7 +2,6 @@
     <pbc-generation-picker *ngIf="allGenerations"
         (generationSelected)="generationSelected($event)"></pbc-generation-picker>
     <div *ngIf="isLoading">
-        <!-- Use 'd-flex' and 'justify-content-center' to center horizontally -->
         <div class="spinner-grow text-danger" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
@@ -29,11 +28,11 @@
                     {{dm.types[0].substring(0, 3)}}
                 </td>
                 <td *ngFor="let type of types; let c = index" [attr.row]="r" [attr.col]="c" #typeCell
-                    class="text-center fs-6 text-white type-cell" (mouseenter)="onCellMouseEnter(r, c)"
-                    (mouseleave)="onCellMouseLeave(r, c)" [ngClass]="{
-                    'bg-success': calculateDamage(types[r], types[c], 'two'),
-                    'bg-danger': calculateDamage(types[r], types[c], 'half'),
-                    'bg-secondary': calculateDamage(types[r], types[c], 'zero')}">
+                    class="text-center fs-6 text-white type-cell" (click)="freezeColumnRow(r, c)"
+                    (mouseenter)="onCellMouseEnter(r, c)" (mouseleave)="onCellMouseLeave(r, c)" [ngClass]="{
+                    'bg-success': getDamageText(types[r], types[c]) === '2',
+                    'bg-danger': getDamageText(types[r], types[c]) === '½',
+                    'bg-secondary': getDamageText(types[r], types[c]) === '0'}">
                     <div>{{getDamageText(types[r], types[c])}}</div>
                 </td>
             </tr>

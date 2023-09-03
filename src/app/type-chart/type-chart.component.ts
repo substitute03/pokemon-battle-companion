@@ -19,7 +19,9 @@ export class TypeChartComponent implements OnInit {
     frozenColumnIndex: number = -1;
     @ViewChildren('typeCell', { read: ElementRef }) typeCellElements: QueryList<ElementRef> | undefined;
 
-    constructor(private _typeService: TypeService, private _generationService: GenerationService, private renderer: Renderer2) { }
+    constructor(
+        private _typeService: TypeService,
+        private _generationService: GenerationService, private renderer: Renderer2) { }
 
     ngOnInit(): void {
         this.setData();
@@ -28,39 +30,6 @@ export class TypeChartComponent implements OnInit {
     private async setData(): Promise<void> {
         await this.setGenerations();
         await this.setDamageMultipliers();
-    }
-
-    public calculateDamage(attacker: string, defender: string, multiplier: string): boolean {
-        if (multiplier === "one") {
-            if (this.damageMultipliers
-                .find(dm => dm.types[0] === defender)?.one
-                .find(o => o === attacker)) {
-                return true;
-            }
-        }
-        else if (multiplier === "two") {
-            if (this.damageMultipliers
-                .find(dm => dm.types[0] === defender)?.two
-                .find(o => o === attacker)) {
-                return true;
-            }
-        }
-        else if (multiplier === "half") {
-            if (this.damageMultipliers
-                .find(dm => dm.types[0] === defender)?.half
-                .find(o => o === attacker)) {
-                return true;
-            }
-        }
-        else if (multiplier === "zero") {
-            if (this.damageMultipliers
-                .find(dm => dm.types[0] === defender)?.zero
-                .find(zero => zero === attacker)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public onCellMouseEnter(r: number, c: number): void {
@@ -88,7 +57,8 @@ export class TypeChartComponent implements OnInit {
             ?.filter(cell => cell.nativeElement.getAttribute('row') === r.toString() ||
                 cell.nativeElement.getAttribute('col') === c.toString())
             .forEach(cell => {
-                if (cell.nativeElement.getAttribute('row') !== this.frozenRowIndex.toString() && cell.nativeElement.getAttribute('col') !== this.frozenColumnIndex.toString()) {
+                if (cell.nativeElement.getAttribute('row') !== this.frozenRowIndex.toString() &&
+                    cell.nativeElement.getAttribute('col') !== this.frozenColumnIndex.toString()) {
                     this.renderer.removeClass(cell.nativeElement, 'type-cell-highlighted');
                     this.renderer.addClass(cell.nativeElement, 'type-cell')
                 }
@@ -111,6 +81,13 @@ export class TypeChartComponent implements OnInit {
         }
         else if (this.frozenColumnIndex === c) {
             this.frozenColumnIndex = -1;
+        }
+    }
+
+    public freezeColumnRow(r: number, c: number) {
+        if ((this.frozenColumnIndex === -1 && this.frozenRowIndex === -1) || (this.frozenColumnIndex === c && this.frozenRowIndex === r)) {
+            this.freezeColumn(c);
+            this.freezeRow(r);
         }
     }
 
@@ -142,7 +119,7 @@ export class TypeChartComponent implements OnInit {
         this.isLoading = false;
     }
 
-    public getDamageText(attacker: string, defender: string): string | undefined {
+    public getDamageText(attacker: string, defender: string): string {
         if (this.damageMultipliers
             .find(dm => dm.types[0] === defender)?.one
             .find(o => o === attacker)) {
