@@ -98,6 +98,18 @@
     background-color: rgba(0, 0, 0, 0.137); /* Slight background color */
 }
 
+.type-cell-frozen {
+    padding: 0;
+    text-align: center;
+    width: 50px; /* Set a fixed width for the cells */
+    min-width: 50px;
+    height: 50px; /* Set a fixed height for the cells */
+    min-height: 50px;
+    vertical-align: middle;
+    border: 4.5px solid #0099ff;
+    background-color: rgba(0, 0, 0, 0.137); /* Slight background color */
+}
+
 /* Create a grid-like layout with horizontal and vertical lines */
 .type-grid {
     border-collapse: collapse;
