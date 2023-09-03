@@ -112,7 +112,13 @@ export class TypeChartComponent implements OnInit {
     }
 
     public freezeColumnRow(r: number, c: number) {
-        if ((this.frozenColumnIndex === -1 && this.frozenRowIndex === -1) ||
+        if (this.frozenRowIndex !== -1 && this.frozenColumnIndex === -1) {
+            this.freezeColumn(c);
+        }
+        else if (this.frozenRowIndex === -1 && this.frozenColumnIndex !== -1) {
+            this.freezeRow(r);
+        }
+        else if ((this.frozenColumnIndex === -1 && this.frozenRowIndex === -1) ||
             (this.frozenColumnIndex === c && this.frozenRowIndex === r)) {
             this.freezeColumn(c);
             this.freezeRow(r);
