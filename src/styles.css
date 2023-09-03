@@ -94,7 +94,7 @@
     height: 50px; /* Set a fixed height for the cells */
     min-height: 50px;
     vertical-align: middle;
-    border: 3px solid #000000;
+    border: 3px dotted #000000;
     background-color: rgba(0, 0, 0, 0.137); /* Slight background color */
 }
 
@@ -106,7 +106,7 @@
     height: 50px; /* Set a fixed height for the cells */
     min-height: 50px;
     vertical-align: middle;
-    border: 4.5px solid #0099ff;
+    border: 3px solid #000000;
     background-color: rgba(0, 0, 0, 0.137); /* Slight background color */
 }
 
