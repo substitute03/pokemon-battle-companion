@@ -1,11 +1,11 @@
 import { TypeName } from "./typeDomain"
 
 export interface DamageMultipliers {
-    types: TypeName[];
-    four: TypeName[],
-    two: TypeName[],
-    one: TypeName[],
-    half: TypeName[],
-    quarter: TypeName[],
-    zero: TypeName[]
+    types: string[];
+    four: string[],
+    two: string[],
+    one: string[],
+    half: string[],
+    quarter: string[],
+    zero: string[]
 }

@@ -25,6 +25,7 @@ export class TypeService {
             return await this.getDefensiveDamageMultipliersForType((types[0]), generationId);
         }
         else if (types.length === 2) {
+            // TODO: getDefensiveDamageMultipliersForTypes() doesn't seem to account for the generation.
             return await this.getDefensiveDamageMultipliersForTypes(types[0], types[1], generationId);
         }
 
@@ -101,7 +102,7 @@ export class TypeService {
             types: [type.name as TypeName], four: [], two: [], one: [], half: [], quarter: [], zero: []
         };
 
-        let processedTypes: TypeName[] = [];
+        let processedTypes: string[] = [];
         let damageRelationsDifferentInGens: Generation[] = [];
 
         const currentDamageRelations: TypeRelations =
@@ -140,41 +141,42 @@ export class TypeService {
             // Calculate double damage from.
             for (const type of damageRelationsToUse.double_damage_from) {
                 const typeAddedInGenId: number =
-                    await this.getTypeAddedInGenerationId(type.name as TypeName);
+                    await this.getTypeAddedInGenerationId(type.name);
 
                 if (selectedGenId >= typeAddedInGenId) {
-                    defensiveMultipliers.two.push(type.name as TypeName);
+                    defensiveMultipliers.two.push(type.name);
                 }
 
-                processedTypes.push(type.name as TypeName);
+                processedTypes.push(type.name);
             }
 
             // Calculate half damage from.
             for (const type of damageRelationsToUse.half_damage_from) {
                 const typeAddedInGenId: number =
-                    await this.getTypeAddedInGenerationId(type.name as TypeName);
+                    await this.getTypeAddedInGenerationId(type.name);
 
                 if (selectedGenId >= typeAddedInGenId) {
-                    defensiveMultipliers.half.push(type.name as TypeName);
+                    defensiveMultipliers.half.push(type.name);
                 }
 
-                processedTypes.push(type.name as TypeName);
+                processedTypes.push(type.name);
             }
 
             // Calculate zero damage from.
             for (const type of damageRelationsToUse.no_damage_from) {
                 const typeAddedInGenId: number =
-                    await this.getTypeAddedInGenerationId(type.name as TypeName);
+                    await this.getTypeAddedInGenerationId(type.name);
 
                 if (selectedGenId >= typeAddedInGenId) {
-                    defensiveMultipliers.zero.push(type.name as TypeName);
+                    defensiveMultipliers.zero.push(type.name);
                 }
 
-                processedTypes.push(type.name as TypeName);
+                processedTypes.push(type.name);
             }
 
             // Calculate x1 damage from.
             // Add all types that have not been processed that exist in the selected generation.
+            const allTypeNames: string[] = await this.getAllTypeNames();
             for (const typeName of allTypeNames) {
                 const typeAddedInGenId: number =
                     await this.getTypeAddedInGenerationId(typeName);
@@ -189,6 +191,7 @@ export class TypeService {
     }
 
     private async getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type, selectedGenId: number): Promise<DamageMultipliers> {
+        const allTypeNames: string[] = await this.getAllTypeNames();
         let defensiveMultipliers: DamageMultipliers = {
             types: [type1.name as TypeName, type2.name as TypeName],
             four: [], two: [], one: [], half: [], quarter: [], zero: []

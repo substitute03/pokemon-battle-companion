@@ -67,7 +67,7 @@ export class PokemonService {
             await this.getPokemonTypesByGeneration(pokemonApi, selectedGenerationId);
 
         const defensiveDamageMultipliers: DamageMultipliers = await this._typeService
-            .getDefensiveDamageMultipliersByGeneration(types, selectedGenerationId);
+            .getDefensiveDamageMultipliersByGeneration(types.map(t => t), selectedGenerationId);
 
         const sprite: string | null = pokemonApi.sprites.other['official-artwork'].front_default;
 
@@ -76,7 +76,7 @@ export class PokemonService {
             pokemonApi.id,
             pokemonApi.name,
             selectedGenerationId,
-            types.map(t => t.name as TypeName),
+            types.map(t => t.name),
             defensiveDamageMultipliers,
             sprite);
 
@@ -97,7 +97,7 @@ export class PokemonService {
         // If the pokemon has past types, get the generation ids of when their typing was different to their current type names.
         let typesDifferentInGenIds: number[] = [];
         let typesDifferentInGens: Generation[] = [];
-        let typeNames: TypeName[] = [];
+        let typeNames: string[] = [];
 
         for (const pastType of pastTypes) {
             const generation: Generation =
@@ -114,7 +114,7 @@ export class PokemonService {
         // greater than the most recent type change, get the mon's current type names.
         if ((pastTypes.length === 0) ||
             (selectedGenerationId > Math.max(...typesDifferentInGens.map(x => x.id)))) {
-            for (let typeName of currentTypes.map(ct => ct.type.name as TypeName)) {
+            for (let typeName of currentTypes.map(ct => ct.type.name)) {
                 typeNames.push(typeName);
             };
         }
@@ -124,7 +124,7 @@ export class PokemonService {
         // TODO: This scenario may be covered by the i
         if (pastTypes.length === 1 &&
             selectedGenerationId <= Math.max(...typesDifferentInGens.map(x => x.id))) {
-            for (let typeName of pastTypes[0].types.map(t => t.type.name as TypeName)) {
+            for (let typeName of pastTypes[0].types.map(t => t.type.name)) {
                 typeNames.push(typeName);
             }
         }
@@ -143,7 +143,7 @@ export class PokemonService {
                 typesDifferentInGens.find(g => g.id === genIdToGetTypesFor);
 
             if (genToGetTypesFor)
-                for (let typeName of genToGetTypesFor.types.map(t => t.name as TypeName)) {
+                for (let typeName of genToGetTypesFor.types.map(t => t.name)) {
                     typeNames.push(typeName);
                 }
         }
@@ -164,7 +164,7 @@ export class PokemonService {
         id: number,
         name: string,
         generationId: number,
-        typeNames: TypeName[],
+        typeNames: string[],
         defensiveDamageMultipliers: DamageMultipliers,
         sprite: string | null): PokemonDomain {
 
