@@ -6,6 +6,7 @@ import { PokemonDomain } from "../domain/pokemonDomain";
 import { TypeName } from "../domain/typeDomain";
 import { DamageMultipliers } from "../domain/damageMultipliers";
 import { TypeService } from "./type.service";
+import { DefensiveDamageMultipliersDomain } from "../domain/DefensiveDamageMultipliersDomain";
 
 @Injectable({
     providedIn: 'root'
@@ -66,8 +67,15 @@ export class PokemonService {
         const types: Type[] =
             await this.getPokemonTypesByGeneration(pokemonApi, selectedGenerationId);
 
-        const defensiveDamageMultipliers: DamageMultipliers = await this._typeService
-            .getDefensiveDamageMultipliersByGeneration(types.map(t => t), selectedGenerationId);
+        const type1DamageMultipliers: DamageMultipliers = await this._typeService
+            .getDefensiveDamageMultipliersByGeneration(types[0], selectedGenerationId);
+
+        const type2DamageMultipliers: DamageMultipliers | undefined = types[1] ? await this._typeService
+            .getDefensiveDamageMultipliersByGeneration(types[1], selectedGenerationId) : undefined;
+
+        const damageMultipliers = new DefensiveDamageMultipliersDomain(
+            types[0], types[1], selectedGenerationId,
+            type1DamageMultipliers, type2DamageMultipliers)
 
         const sprite: string | null = pokemonApi.sprites.other['official-artwork'].front_default;
 
@@ -77,7 +85,7 @@ export class PokemonService {
             pokemonApi.name,
             selectedGenerationId,
             types.map(t => t.name),
-            defensiveDamageMultipliers,
+            damageMultipliers,
             sprite);
 
         return pokemonDomain;
@@ -165,7 +173,7 @@ export class PokemonService {
         name: string,
         generationId: number,
         typeNames: string[],
-        defensiveDamageMultipliers: DamageMultipliers,
+        defensiveDamageMultipliers: DefensiveDamageMultipliersDomain,
         sprite: string | null): PokemonDomain {
 
         let capitalizeNextCharacter = true; // Start with true to capitalize the first character.

@@ -20,14 +20,14 @@ export class TypeService {
         this.mainClient = new MainClient();
     }
 
-    public async getDefensiveDamageMultipliersByGeneration(types: Type[], generationId: number): Promise<DamageMultipliers> {
-        if (types.length === 1) {
-            return await this.getDefensiveDamageMultipliersForType((types[0]), generationId);
-        }
-        else if (types.length === 2) {
-            // TODO: getDefensiveDamageMultipliersForTypes() doesn't seem to account for the generation.
-            return await this.getDefensiveDamageMultipliersForTypes(types[0], types[1], generationId);
-        }
+    public async getDefensiveDamageMultipliersByGeneration(type: Type, generationId: number): Promise<DamageMultipliers> {
+        // if (types.length === 1) {
+        return await this.getDefensiveDamageMultipliersForType(type, generationId);
+        // }
+        // else if (types.length === 2) {
+        //     // TODO: getDefensiveDamageMultipliersForTypes() doesn't seem to account for the generation.
+        //     return await this.getDefensiveDamageMultipliersForTypes(types[0], types[1], generationId);
+        // }
 
         throw new Error("Could not calculate damage multipliers. Unknown number of types provided.");
     }
@@ -45,7 +45,7 @@ export class TypeService {
 
         let damageMultipliersForAllTypes: DamageMultipliers[] = [];
         for (let typeIndex = 0; typeIndex < typesInGen.length; typeIndex++) {
-            const damageMultipliers = await this.getDefensiveDamageMultipliersByGeneration([typesInGen[typeIndex]], generationId);
+            const damageMultipliers = await this.getDefensiveDamageMultipliersByGeneration(typesInGen[typeIndex], generationId);
 
             damageMultipliersForAllTypes.push(damageMultipliers);
         }
@@ -190,88 +190,88 @@ export class TypeService {
         return defensiveMultipliers;
     }
 
-    private async getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type, selectedGenId: number): Promise<DamageMultipliers> {
-        const allTypeNames: string[] = await this.getAllTypeNames();
-        let defensiveMultipliers: DamageMultipliers = {
-            types: [type1.name as TypeName, type2.name as TypeName],
-            four: [], two: [], one: [], half: [], quarter: [], zero: []
-        };
+    // private async getDefensiveDamageMultipliersForTypes(type1: Type, type2: Type, selectedGenId: number): Promise<DamageMultipliers> {
+    //     const allTypeNames: string[] = await this.getAllTypeNames();
+    //     let defensiveMultipliers: DamageMultipliers = {
+    //         types: [type1.name as TypeName, type2.name as TypeName],
+    //         four: [], two: [], one: [], half: [], quarter: [], zero: []
+    //     };
 
-        let zeroMultiplierTypes: TypeName[] = [];
-        type1.damage_relations.no_damage_from.forEach(type => {
-            zeroMultiplierTypes.push(type.name as TypeName);
-        });
-        type2.damage_relations.no_damage_from.forEach(type => {
+    //     let zeroMultiplierTypes: TypeName[] = [];
+    //     type1.damage_relations.no_damage_from.forEach(type => {
+    //         zeroMultiplierTypes.push(type.name as TypeName);
+    //     });
+    //     type2.damage_relations.no_damage_from.forEach(type => {
 
-            zeroMultiplierTypes.push(type.name as TypeName);
-        });
+    //         zeroMultiplierTypes.push(type.name as TypeName);
+    //     });
 
-        of(zeroMultiplierTypes)
-            .pipe(distinct())
-            .subscribe(types => defensiveMultipliers.zero = types)
-            .unsubscribe();
+    //     of(zeroMultiplierTypes)
+    //         .pipe(distinct())
+    //         .subscribe(types => defensiveMultipliers.zero = types)
+    //         .unsubscribe();
 
-        let twoMultplierTypes: TypeName[] = [];
-        type1.damage_relations.double_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
-                twoMultplierTypes.push(type.name as TypeName);
-            };
-        });
-        type2.damage_relations.double_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
-                twoMultplierTypes.push(type.name as TypeName);
-            };
-        });
+    //     let twoMultplierTypes: TypeName[] = [];
+    //     type1.damage_relations.double_damage_from.forEach(type => {
+    //         if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+    //             twoMultplierTypes.push(type.name as TypeName);
+    //         };
+    //     });
+    //     type2.damage_relations.double_damage_from.forEach(type => {
+    //         if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+    //             twoMultplierTypes.push(type.name as TypeName);
+    //         };
+    //     });
 
-        let halfMultiplierTypes: TypeName[] = [];
-        type1.damage_relations.half_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
-                halfMultiplierTypes.push(type.name as TypeName);
-            };
-        });
-        type2.damage_relations.half_damage_from.forEach(type => {
-            if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
-                halfMultiplierTypes.push(type.name as TypeName);
-            };
-        });
+    //     let halfMultiplierTypes: TypeName[] = [];
+    //     type1.damage_relations.half_damage_from.forEach(type => {
+    //         if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+    //             halfMultiplierTypes.push(type.name as TypeName);
+    //         };
+    //     });
+    //     type2.damage_relations.half_damage_from.forEach(type => {
+    //         if (!zeroMultiplierTypes.includes(type.name as TypeName)) {
+    //             halfMultiplierTypes.push(type.name as TypeName);
+    //         };
+    //     });
 
-        // Calculate two and four defensive multipliers
-        allTypeNames.forEach(typeName => {
-            if (twoMultplierTypes.filter(t => t === typeName).length === 1) {
-                defensiveMultipliers.two.push(typeName);
-            }
+    //     // Calculate two and four defensive multipliers
+    //     allTypeNames.forEach(typeName => {
+    //         if (twoMultplierTypes.filter(t => t === typeName).length === 1) {
+    //             defensiveMultipliers.two.push(typeName);
+    //         }
 
-            if (twoMultplierTypes.filter(t => t === typeName).length === 2) {
-                defensiveMultipliers.four.push(typeName);
-            }
-        });
+    //         if (twoMultplierTypes.filter(t => t === typeName).length === 2) {
+    //             defensiveMultipliers.four.push(typeName);
+    //         }
+    //     });
 
-        // Calculate half and quarter defensive multipliers
-        allTypeNames.forEach(typeName => {
-            if (halfMultiplierTypes.filter(t => t === typeName).length === 1) {
-                defensiveMultipliers.half.push(typeName);
-            }
+    //     // Calculate half and quarter defensive multipliers
+    //     allTypeNames.forEach(typeName => {
+    //         if (halfMultiplierTypes.filter(t => t === typeName).length === 1) {
+    //             defensiveMultipliers.half.push(typeName);
+    //         }
 
-            if (halfMultiplierTypes.filter(t => t === typeName).length === 2) {
-                defensiveMultipliers.quarter.push(typeName);
-            }
-        });
+    //         if (halfMultiplierTypes.filter(t => t === typeName).length === 2) {
+    //             defensiveMultipliers.quarter.push(typeName);
+    //         }
+    //     });
 
-        const addedTypes = [
-            ...defensiveMultipliers.two,
-            ...defensiveMultipliers.four,
-            ...defensiveMultipliers.half,
-            ...defensiveMultipliers.quarter,
-            ...defensiveMultipliers.zero];
+    //     const addedTypes = [
+    //         ...defensiveMultipliers.two,
+    //         ...defensiveMultipliers.four,
+    //         ...defensiveMultipliers.half,
+    //         ...defensiveMultipliers.quarter,
+    //         ...defensiveMultipliers.zero];
 
-        allTypeNames.forEach(typeName => {
-            if (!addedTypes.includes(typeName)) {
-                defensiveMultipliers.one.push(typeName);
-            }
-        });
+    //     allTypeNames.forEach(typeName => {
+    //         if (!addedTypes.includes(typeName)) {
+    //             defensiveMultipliers.one.push(typeName);
+    //         }
+    //     });
 
-        return defensiveMultipliers;
-    }
+    //     return defensiveMultipliers;
+    // }
 
     private calculatePastDamageRelationsToUse(pastDamageRelations: PastDamageRelationsDomain[],
         selectedGenId: number, damageRelationsDifferentInGens: Generation[]): TypeRelations {
