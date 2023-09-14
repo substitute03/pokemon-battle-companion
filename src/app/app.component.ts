@@ -1,16 +1,20 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import * as Animations from './animations';
 
 @Component({
-  selector: 'pbc-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'pbc-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    animations: [
+        Animations.slideInAnimations,
+    ]
 })
-export class AppComponent implements OnInit, OnDestroy{
-  title = 'PokemonBattleCompanion';
+export class AppComponent {
+    title = 'PokemonBattleCompanion';
 
-  constructor() {}
-
-  ngOnInit(){}
-
-  ngOnDestroy() {}
+    // For route animations.
+    public prepareRoute(outlet: RouterOutlet) {
+        return outlet?.activatedRouteData?.['animation'];
+    }
 }

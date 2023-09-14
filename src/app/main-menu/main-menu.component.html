@@ -1,0 +1,21 @@
+<div class="row text-center align-items-center mb-4">
+    <div class="col-sm-2 mx-auto" style="min-width: 300px">
+        <div class="vstack gap-3">
+            <img class="img-fluid" style="width:500px" src="/assets/images/pokemon-logo.png">
+            <span class="display-6">
+                Battle Companion
+            </span>
+            <div class="btn-group" role="group" aria-label="app selection">
+                <input type="radio" selected (click)="this.onAppClicked('weaknesses')" class="btn-check" name="btnradio"
+                    id="btnradio1" autocomplete="off">
+                <label class="btn btn-outline-primary" for="btnradio1">Weaknesses</label>
+
+                <input type="radio" (click)="this.onAppClicked('typechart')" class="btn-check" name="btnradio"
+                    id="btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" for="btnradio2">Type Chart</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<router-outlet></router-outlet>
