@@ -9,6 +9,7 @@
                 </div>
                 <pbc-generation-picker [showTitle]="false"
                     (generationSelected)="generationSelected($event)"></pbc-generation-picker>
+                <p class="text-danger pt-3" *ngIf="message && !isLoading">{{message}}</p>
                 <div class="text-danger"
                     *ngIf="pokemonForm.controls['generation'].invalid && pokemonForm.controls['generation'].touched">
                     Please select a generation
@@ -36,7 +37,6 @@
                             </div>
                         </div>
                     </div>
-                    <p class="text-danger" *ngIf="message && !isLoading">{{message}}</p>
                 </div>
                 <ng-template #loadingSpinner>
                     <div class="spinner-grow text-danger" role="status">

@@ -66,6 +66,11 @@ export class PokemonDetailsComponent implements OnInit, OnDestroy {
     }
 
     public async getPokemonDetails() {
+        if (!this.allPokemonNames.includes(this.pokemonForm.get("pokemonName")?.value)) {
+            this.message = "Please choose a name from the suggested options"
+            return;
+        }
+
         if (this.pokemonForm.invalid) {
             this.pokemonForm.markAllAsTouched(); // Mark as touched to display validation if it is not already shown.
             return;

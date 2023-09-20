@@ -14,5 +14,4 @@ export class DamageMultipliersComponent implements OnInit {
 
     ngOnInit(): void {
     }
-
 }
